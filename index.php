@@ -26,35 +26,63 @@
             } else {
                $page_start = ($page * $per_page) - $per_page;
             }
-               // Hiding draft posts from subscribers but showing them to admins:
-            if(isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
-               $post_query_count = "SELECT * FROM posts";
+
+            // Hiding draft posts from subscribers but showing them to admins:
+            
+               // Preparing statements:
+               if(isset($_SESSION['user_name']) && isAdmin($_SESSION['user_name'])) {
+                  $stmt_count1 = mysqli_prepare($connection, "SELECT post_id, post_title, post_author, post_date, post_image, post_content FROM posts");
+               } else {
+                  $stmt_count2 = mysqli_prepare($connection, "SELECT post_id, post_title, post_author, post_date, post_image, post_content FROM posts WHERE post_status = ?");
+                  $published = 'published';
+               }
+            
+               // Creating & Executing statements:
+            if(isset($stmt_count1)) {
+               mysqli_stmt_execute($stmt_count1);                         // Execution of statement1
+               mysqli_stmt_bind_result($stmt_count1, $post_id, $post_title, $post_author, $post_date, $post_image, $post_content);
+               $stmt_count = $stmt_count1;
             } else {
-               $post_query_count = "SELECT * FROM posts WHERE post_status = 'published'";
+               mysqli_stmt_bind_param($stmt_count2, "s", $published);     // Creating statement2
+               mysqli_stmt_execute($stmt_count2);                         // Execution of statement2
+               mysqli_stmt_bind_result($stmt_count2, $post_id, $post_title, $post_author, $post_date, $post_image, $post_content);
+               $stmt_count = $stmt_count2;
             }
-            $find_post_count = mysqli_query($connection, $post_query_count);
-            $post_count = mysqli_num_rows($find_post_count);
+            
+            mysqli_stmt_store_result($stmt_count);    // Needed for next mysqli_stmt_num_rows cos it doesn't save results in memory
+            $post_count = mysqli_stmt_num_rows($stmt_count);
             $page_count = ceil($post_count / $per_page);
+            confirmQuery($stmt_count);
+            mysqli_stmt_close($stmt_count);
             
             // Loop for showing all published posts:
             if($post_count >= 1) {   // Condition for not showing 'message' if there is at least 1 published post:
                // Hiding draft posts from subscribers but showing them to admins:
-               if(isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
-                  $query = "SELECT * FROM posts LIMIT $page_start, $per_page";                                 // Added LIMIT for Paging system
+               
+                  // Preparing statements:
+               if(isset($_SESSION['user_name']) && isAdmin($_SESSION['user_name'])) {
+                  $stmt1 = mysqli_prepare($connection, "SELECT post_id, post_title, post_author, post_date, post_image, post_content FROM posts LIMIT ?, ?");  // Added LIMIT for Paging system
                } else {
-                  $query = "SELECT * FROM posts WHERE post_status = 'published' LIMIT $page_start, $per_page"; // Added LIMIT for Paging system
-
+                  $stmt2 = mysqli_prepare($connection, "SELECT post_id, post_title, post_author, post_date, post_image, post_content FROM posts WHERE post_status = ? LIMIT ?, ?"); // Added LIMIT for Paging system
+                  $published = 'published';
                }
-               $select_all_posts_query = mysqli_query($connection, $query);
+               
+                  // Creating & Executing statements:
+               if(isset($stmt1)) {
+                  mysqli_stmt_bind_param($stmt1, "ii", $page_start, $per_page);     // Creating statement1
+                  mysqli_stmt_execute($stmt1);                      // Execution of statement1
+                  mysqli_stmt_bind_result($stmt1, $post_id, $post_title, $post_author, $post_date, $post_image, $post_content);
+                  $stmt = $stmt1;
+               } else {
+                  mysqli_stmt_bind_param($stmt2, "sii", $published, $page_start, $per_page);     // Creating statement2
+                  mysqli_stmt_execute($stmt2);                                   // Execution of statement2
+                  mysqli_stmt_bind_result($stmt2, $post_id, $post_title, $post_author, $post_date, $post_image, $post_content);
+                  $stmt = $stmt2;
+               }
 
-               while ($row = mysqli_fetch_assoc($select_all_posts_query)) {
-                  $post_id = $row["post_id"];
-                  $post_title = $row["post_title"];
-                  $post_author = $row["post_author"];
-                  $post_date = $row["post_date"];
-                  $post_image = $row["post_image"];
-                  $post_content = substr($row["post_content"], 0, 200);
-                  $post_status = $row["post_status"];
+                  // Showing published/all posts:
+               while(mysqli_stmt_fetch($stmt)) {
+                  $post_content = substr($post_content, 0, 200);
                ?>
                   <!-- First Blog Post -->
 
@@ -82,9 +110,11 @@
                   <hr>
                <?php
                }
+
             } else {
-               echo "<h1 class='text-center'>Not posts available</h1>";
+               echo "<h1 class='text-center'>No posts available</h1>";
             }
+            mysqli_stmt_close($stmt);
          ?>
 
       </div>

@@ -13,28 +13,39 @@
             <div class="row">
                <div class="col-lg-12">
                   <h1 class="page-header">
-                        Welcome to Admin
-                        <small><?php echo $_SESSION['user_name']; ?></small>
+                     Welcome to admin
+                     <small><?php echo $_SESSION['user_name']; ?></small>
                   </h1>
 
                   <h3>User's Profile</h3>
    
 <?php
    if(isset($_SESSION['user_name'])) {
+      // $user_name = escape($_SESSION['user_name']);    // не впевнений: чи треба тут "ескейпити"    // SELECT USER via mysqli_query
+      $the_user_id = escape($_SESSION['user_id']);
+
       // Getting Values from DataBase:
-      $user_name = escape($_SESSION['user_name']);    // не впевнений: чи треба тут "ескейпити"
-      $query = "SELECT * FROM users WHERE user_name = '{$user_name}'";
-      $select_user_query = mysqli_query($connection, $query);
-      while($row = mysqli_fetch_array($select_user_query)) {
-         $the_user_id = $row['user_id'];
-         $user_name = $row['user_name'];
-         $user_email = $row['user_email'];
-         $user_password = $row['user_password'];
-         $user_firstname = $row['user_firstname'];
-         $user_lastname = $row['user_lastname'];
-         $user_image = $row['user_image'];
-      }
+
+      //    // SELECT USER via mysqli_query:
+      // $query = "SELECT * FROM users WHERE user_name = '{$user_name}'";
+      // $select_user_query = mysqli_query($connection, $query);
+      // while($row = mysqli_fetch_array($select_user_query)) {
+      //    $the_user_id = $row['user_id'];
+      //    $user_name = $row['user_name'];
+      //    $user_email = $row['user_email'];
+      //    $user_password = $row['user_password'];
+      //    $user_firstname = $row['user_firstname'];
+      //    $user_lastname = $row['user_lastname'];
+      //    $user_image = $row['user_image'];
+      // }
       
+         // SELECT USER via mysqli_stmt:
+      $stmt_select = mysqli_prepare($connection, "SELECT user_name, user_email, user_password, user_firstname, user_lastname, user_role, user_image FROM users WHERE user_id = ?");
+      mysqli_stmt_bind_param($stmt_select, "i", $the_user_id);
+      mysqli_stmt_execute($stmt_select);
+      mysqli_stmt_bind_result($stmt_select, $user_name, $user_email, $user_password, $user_firstname, $user_lastname, $user_role, $user_image);
+      mysqli_stmt_store_result($stmt_select);
+
       // Getting changed Values from $_Post:
       if(isset($_POST['update_user'])) {
          $user_name = escape($_POST['user_name']);
@@ -67,17 +78,27 @@
             }
 
             // Inserting updated Values into DataBase:
-            $query = "UPDATE users SET ";
-            $query .= "user_name = '{$user_name}', ";
-            $query .= "user_email = '{$user_email}', ";
-            $query .= "user_password = '{$hashed_password}', ";
-            $query .= "user_firstname = '{$user_firstname}', ";
-            $query .= "user_lastname = '{$user_lastname}', ";
-            $query .= "user_image = '{$user_image}' ";
-            // $query .= "post_date = now() ";
-            $query .= "WHERE user_id = '{$the_user_id}'";
-            $user_update_query = mysqli_query($connection, $query);
-            confirmQuery($user_update_query);
+            
+            //    // UPDATE USER via mysqli_query:
+            // $query = "UPDATE users SET ";
+            // $query .= "user_name = '{$user_name}', ";
+            // $query .= "user_email = '{$user_email}', ";
+            // $query .= "user_password = '{$hashed_password}', ";
+            // $query .= "user_firstname = '{$user_firstname}', ";
+            // $query .= "user_lastname = '{$user_lastname}', ";
+            // $query .= "user_image = '{$user_image}' ";
+            // // $query .= "post_date = now() ";
+            // $query .= "WHERE user_id = '{$the_user_id}'";
+            // $user_update_query = mysqli_query($connection, $query);
+            // confirmQuery($user_update_query);
+            
+               // UPDATE USER via mysqli_stmt:
+            $stmt_update = mysqli_prepare($connection, "UPDATE users SET user_name = ?, user_email = ?, user_password = ?, user_firstname = ?, user_lastname = ?, user_image = ? WHERE user_id = ?");
+            mysqli_stmt_bind_param($stmt_update, "ssssssi", $user_name, $user_email, $hashed_password, $user_firstname, $user_lastname, $user_image, $the_user_id);
+            mysqli_stmt_execute($stmt_update);
+            confirmQuery($stmt_update);
+            mysqli_stmt_close($stmt_update);
+
             // header("Location: users.php");
             echo "<p class='bg-success'>Profile <b>$user_name</b> Edited." . " " . "<a href='users.php'>View All Users</a></p>";
          }
@@ -85,6 +106,8 @@
          header("Location: index.php");
       }
    }
+
+while (mysqli_stmt_fetch($stmt_select)) {
 ?>
 
    <form action="" method="post" enctype="multipart/form-data">
@@ -122,7 +145,12 @@
          <input type="submit" class="btn btn-primary" name="cancel" value="Cancel">
       </div>
    </form>
+<?php
+}
+confirmQuery($stmt_select);
+mysqli_stmt_close($stmt_select);
 
+?>
                </div>
             </div>
             <!-- /.row -->

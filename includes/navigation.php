@@ -42,12 +42,13 @@
                }
 
             // if(isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {     // Allows only admins see link into Admin panel
+            if(isset($_SESSION['user_role'])) {     // Allows only logged users see link into Admin panel
             ?>
                <li>
                   <a href="admin">Admin</a>
                </li>
             <?php
-            // }
+            }
 
             if(!isset($_SESSION['user_role'])) {
             ?>

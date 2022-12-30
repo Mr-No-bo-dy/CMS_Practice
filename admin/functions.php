@@ -65,43 +65,64 @@
       $user_password = password_hash($user_password, PASSWORD_BCRYPT, array('cost' => 12));
       
       // Registration itself:
-      $query = "INSERT INTO users (user_name, user_email, user_password, user_role) ";
-      $query .= "VALUES ('{$user_name}', '{$user_email}', '{$user_password}', 'subscriber')";
-      $register_user_query = mysqli_query($connection, $query);
-      confirmQuery($register_user_query);
+
+      //    // Register USER via mysqli_query:
+      // $query = "INSERT INTO users (user_name, user_email, user_password, user_role) ";
+      // $query .= "VALUES ('{$user_name}', '{$user_email}', '{$user_password}', 'subscriber')";
+      // $register_user_query = mysqli_query($connection, $query);
+      // confirmQuery($register_user_query);
+
+         // Register USER via mysqli_stmt:
+      $stmt_register = mysqli_prepare($connection, "INSERT INTO users(user_name, user_email, user_password, user_role) VALUES('{$user_name}', '{$user_email}', '{$user_password}', 'subscriber')");
+      mysqli_stmt_execute($stmt_register);
+
+      confirmQuery($stmt_register);
+      mysqli_stmt_close($stmt_register);
    }
 
    // User Login function:
    function loginUser($user_name, $user_password) {
       global $connection;
 
-      $query = "SELECT * FROM users WHERE user_name = '{$user_name}' ";
-      $select_user_query = mysqli_query($connection, $query);
-      confirmQuery($select_user_query);
-
-      while($row = mysqli_fetch_array($select_user_query)) {
-         // $db_user_id = $row['user_id'];
-         $db_user_name = $row['user_name'];
-         $db_user_password = $row['user_password'];
-         $db_user_firstname = $row['user_firstname'];
-         $db_user_lastname = $row['user_lastname'];
-         $db_user_role = $row['user_role'];
-         // $db_user_image = $row['user_image'];
-      }
+      //    // Login USER via mysqli_query:
+      // $query = "SELECT * FROM users WHERE user_name = '{$user_name}' ";
+      // $select_user_query = mysqli_query($connection, $query);
+      // confirmQuery($select_user_query);
+      // while($row = mysqli_fetch_array($select_user_query)) {
+      //    $db_user_id = $row['user_id'];
+      //    $db_user_name = $row['user_name'];
+      //    $db_user_password = $row['user_password'];
+      //    $db_user_firstname = $row['user_firstname'];
+      //    $db_user_lastname = $row['user_lastname'];
+      //    $db_user_role = $row['user_role'];
+      //    // $db_user_image = $row['user_image'];
+      // }
       
-      // NEW password verification and Login system:
-      if(password_verify($user_password, $db_user_password)) {
-         $_SESSION['user_name'] = $db_user_name;
-         $_SESSION['user_firstname'] = $db_user_firstname;
-         $_SESSION['user_lastname'] = $db_user_lastname;
-         $_SESSION['user_role'] = $db_user_role;
-         // header("Location: ../admin/index.php");         // Relative path
-         header("Location: /!php/_cms/admin/index.php");    // Absolute path
-      } else {
-         // header("Location: ../index.php");               // Relative path
-         header("Location: /!php/_cms/index.php");          // Absolute path
-         // echo "<script>alert('Wrong Username or Password.')</script>";        // Not implemented yet
+         // Login USER via mysqli_stmt:
+      $stmt_login = mysqli_prepare($connection, "SELECT user_id, user_name, user_password, user_firstname, user_lastname, user_role FROM users WHERE user_name = ? ");
+      mysqli_stmt_bind_param($stmt_login, "s", $user_name);
+      mysqli_stmt_execute($stmt_login);
+      mysqli_stmt_bind_result($stmt_login, $db_user_id, $db_user_name, $db_user_password, $db_user_firstname, $db_user_lastname, $db_user_role);
+      mysqli_stmt_store_result($stmt_login);
+
+      while(mysqli_stmt_fetch($stmt_login)) {
+         // NEW password verification and Login system:
+         if(password_verify($user_password, $db_user_password)) {
+            $_SESSION['user_id'] = $db_user_id;
+            $_SESSION['user_name'] = $db_user_name;
+            $_SESSION['user_firstname'] = $db_user_firstname;
+            $_SESSION['user_lastname'] = $db_user_lastname;
+            $_SESSION['user_role'] = $db_user_role;
+            // header("Location: ../admin/index.php");                  // Relative path
+            header("Location: /!php/_cms_practice/admin/index.php");       // Absolute path
+         } else {
+            // header("Location: ../index.php");                        // Relative path
+            header("Location: /!php/_cms_practice/index.php");             // Absolute path
+            // echo "<script>alert('Wrong Username or Password.')</script>";        // Not implemented yet
+         }
       }
+      confirmQuery($stmt_login);
+      mysqli_stmt_close($stmt_login);
    }
 
 
@@ -109,16 +130,17 @@
    function insertCategories() {
       global $connection;
       if(isset($_POST["submit"])) {
-         $cat_title = $_POST["cat_title"];
+         $cat_title = escape($_POST["cat_title"]);
          if ($cat_title == "" || empty ($cat_title)) {
             echo "This field should not be empty!";
          } else {
-            $query = "INSERT INTO categories (cat_title) VALUE ('$cat_title')";
-            $create_category_query = mysqli_query($connection, $query);
-            echo "Category added";
-            if (!$create_category_query) {
-               exit ("QUERY FAILED" . mysqli_error($connection));
-            }
+            $stmt = mysqli_prepare($connection, "INSERT INTO categories (cat_title) VALUES (?)");
+            mysqli_stmt_bind_param($stmt, "s", $cat_title);
+            mysqli_stmt_execute($stmt);
+            
+            confirmQuery($stmt);
+            mysqli_stmt_close($stmt);
+            echo "<p>Category added</p>";
          }
       } else if (isset($_POST['cancel'])) {
          header("Location: categories.php");
@@ -129,7 +151,6 @@
    function findAllCategories() {
       global $connection;
       $query = "SELECT * FROM categories";
-      // $query = "SELECT * FROM categories LIMIT 3";
       $select_categories = mysqli_query($connection, $query);
       while ($row = mysqli_fetch_assoc($select_categories)) {
          $cat_id = $row["cat_id"];
@@ -137,8 +158,8 @@
          echo "<tr>";
          echo "<td>$cat_id</td>";
          echo "<td>$cat_title</td>";
-         echo "<td><a href='categories.php?edit=$cat_id'>Edit</a></td>";
-         echo "<td><a href='categories.php?delete=$cat_id'>Delete</a></td>";
+         echo "<td><a class='btn btn-warning' href='categories.php?edit=$cat_id'>Edit</a></td>";
+         echo "<td><a class='btn btn-danger' href='categories.php?delete=$cat_id'>Delete</a></td>";
          echo "</tr>";
       }
    }
@@ -147,9 +168,13 @@
    function deleteCategories() {
       global $connection;
       if (isset($_GET["delete"])) {
-         $cat_id_delete = $_GET["delete"];
-         $query = "DELETE FROM categories WHERE cat_id = $cat_id_delete";
-         $delete_query = mysqli_query($connection, $query);
+         $cat_id_delete = escape($_GET["delete"]);
+         $stmt = mysqli_prepare($connection, "DELETE FROM categories WHERE cat_id = ?");
+         mysqli_stmt_bind_param($stmt, "i", $cat_id_delete);
+         mysqli_stmt_execute($stmt);
+
+         confirmQuery($stmt);
+         mysqli_stmt_close($stmt);
          header("Location: categories.php");     /* This Send that request back to categories.php,
                               so we won't need to refresh page to see that category is deleted. */
       }
@@ -165,7 +190,7 @@
    <?php
             // FIND & SHOW CATEGORY QUERY
             if (isset($_GET["edit"])) {
-               $cat_id = $_GET["edit"];
+               $cat_id = escape($_GET["edit"]);
                $query = "SELECT * FROM categories WHERE cat_id = $cat_id";
                $select_categories_id = mysqli_query($connection, $query);
                while ($row = mysqli_fetch_assoc($select_categories_id)) {
@@ -179,13 +204,14 @@
 
             // UPDATE CATEGORY
             if (isset($_POST["update_category"])) {
-               $cat_title_update = $_POST["cat_title"];
-               $query = "UPDATE categories SET cat_title = '$cat_title_update' WHERE cat_id = $cat_id";
-               $update_query = mysqli_query($connection, $query);
+               $cat_title_update = escape($_POST["cat_title"]);
+               $stmt = mysqli_prepare($connection, "UPDATE categories SET cat_title = ? WHERE cat_id = ?");
+               mysqli_stmt_bind_param($stmt, "si", $cat_title_update, $cat_id);
+               mysqli_stmt_execute($stmt);
+
+               confirmQuery($stmt);
+               mysqli_stmt_close($stmt);
                header("Location: categories.php");
-               if (!$update_query) {
-                  exit ("QUERY FAILED" . mysqli_error($connection));
-               }
             } else if (isset($_POST['cancel'])) {
                header("Location: categories.php");
             }
@@ -221,25 +247,6 @@
    }
    
 
-   // Changing Posts in Admin - View All Posts:
-   function changePost($request, $column, $value) {
-      global $connection;
-      global $post_id;
-      if(isset($_GET[$request])) {
-         if(isset($_SESSION['user_role'])) {          // Added security to prevent posts's changing by anyone (by GET-request)
-            if($_SESSION['user_role'] == 'admin') {   // Added security to prevent posts's changing by anyone (by GET-request)
-               $post_id = escape($_GET[$request]);
-               $query = "UPDATE posts SET $column = '{$value}' WHERE post_id = '{$post_id}'";
-               $post_change_query = mysqli_query($connection, $query);
-               confirmQuery($post_change_query);
-               header("Location: posts.php");
-            } else {
-               echo "<script>alert('You are NOT allowed to do this.')</script>";
-            }
-         }
-      }      
-   }
-
    // Changing Comments in Admin - Comments:
    function changeComment($request, $value) {
       global $connection;
@@ -248,15 +255,54 @@
          if(isset($_SESSION['user_role'])) {             // Added security to prevent comments's changing by anyone (by GET-request)
             if($_SESSION['user_role'] == 'admin') {      // Added security to prevent comments's changing by anyone (by GET-request)
                $comment_id = escape($_GET[$request]);
-               $query = "UPDATE comments SET comment_status = '{$value}' WHERE comment_id = '{$comment_id}'";
-               $comment_change_query = mysqli_query($connection, $query);
-               confirmQuery($comment_change_query);
+
+               //    // Change comments via mysqli_query:
+               // $query = "UPDATE comments SET comment_status = '{$value}' WHERE comment_id = '{$comment_id}'";
+               // $comment_change_query = mysqli_query($connection, $query);
+               // confirmQuery($comment_change_query);
+
+                  // Change comments via mysqli_stmt:
+               $stmt_comment = mysqli_prepare($connection, "UPDATE comments SET comment_status = ? WHERE comment_id = ?");
+               mysqli_stmt_bind_param($stmt_comment, "si", $value, $comment_id);
+               mysqli_stmt_execute($stmt_comment);
+
+               confirmQuery($stmt_comment);
+               mysqli_stmt_close($stmt_comment);
                header("Location: comments.php");
             } else {
                echo "<script>alert('You are NOT allowed to do this.')</script>";
             }
          }
       }
+   }
+
+   // Changing Posts in Admin - View All Posts:
+   function changePost($request, $column, $value) {
+      global $connection;
+      global $post_id;
+      if(isset($_GET[$request])) {
+         if(isset($_SESSION['user_role'])) {          // Added security to prevent posts's changing by anyone (by GET-request)
+            if($_SESSION['user_role'] == 'admin') {   // Added security to prevent posts's changing by anyone (by GET-request)
+               $post_id = escape($_GET[$request]);
+
+               //    // Change posts via mysqli_query:
+               // $query = "UPDATE posts SET $column = '{$value}' WHERE post_id = '{$post_id}'";
+               // $post_change_query = mysqli_query($connection, $query);
+               // confirmQuery($post_change_query);
+
+                  // Change posts via mysqli_stmt:
+               $stmt_post = mysqli_prepare($connection, "UPDATE posts SET $column = ? WHERE post_id = ?");
+               mysqli_stmt_bind_param($stmt_post, "si", $value, $post_id);
+               mysqli_stmt_execute($stmt_post);
+
+               confirmQuery($stmt_post);
+               mysqli_stmt_close($stmt_post);
+               header("Location: posts.php");
+            } else {
+               echo "<script>alert('You are NOT allowed to do this.')</script>";
+            }
+         }
+      }      
    }
 
    // Changing Users in Admin - View All Users:
@@ -267,9 +313,19 @@
          if(isset($_SESSION['user_role'])) {             // Added security to prevent user's changing by anyone (by GET-request)
             if($_SESSION['user_role'] == 'admin') {      // Added security to prevent user's changing by anyone (by GET-request)
                $user_id = escape($_GET[$request]);
-               $query = "UPDATE users SET user_role = '{$value}' WHERE user_id = '{$user_id}'";
-               $user_change_query = mysqli_query($connection, $query);
-               confirmQuery($user_change_query);
+
+               //    // Change users via mysqli_query:
+               // $query = "UPDATE users SET user_role = '{$value}' WHERE user_id = '{$user_id}'";
+               // $user_change_query = mysqli_query($connection, $query);
+               // confirmQuery($user_change_query);
+
+                  // Change users via mysqli_stmt:
+               $stmt_user = mysqli_prepare($connection, "UPDATE users SET user_role = ? WHERE user_id = ?");
+               mysqli_stmt_bind_param($stmt_user, "si", $value, $user_id);
+               mysqli_stmt_execute($stmt_user);
+
+               confirmQuery($stmt_user);
+               mysqli_stmt_close($stmt_user);
                header("Location: users.php");
             } else {
                echo "<script>alert('You are NOT allowed to do this.')</script>";
@@ -285,9 +341,19 @@
          if(isset($_SESSION['user_role'])) {             // Added security to prevent user/post/comment's deletion by anyone (by GET-request)
             if($_SESSION['user_role'] == 'admin') {      // Added security to prevent user/post/comment's deletion by anyone (by GET-request)
                $smth_id = escape($_POST[$smth_id]);
-               $query = "DELETE FROM $table WHERE $column = '{$smth_id}'";
-               $delete_query = mysqli_query($connection, $query);
-               confirmQuery($delete_query);
+
+               //    // Delete smth via mysqli_query:
+               // $query = "DELETE FROM $table WHERE $column = '{$smth_id}'";
+               // $delete_query = mysqli_query($connection, $query);
+               // confirmQuery($delete_query);
+
+                  // Delete smth via mysqli_stmt:
+               $stmt_delete = mysqli_prepare($connection, "DELETE FROM $table WHERE $column = ?");
+               mysqli_stmt_bind_param($stmt_delete, "i", $smth_id);
+               mysqli_stmt_execute($stmt_delete);
+
+               confirmQuery($stmt_delete);
+               mysqli_stmt_close($stmt_delete);
                header("Location: $redirect.php");
             } else {
                echo "<script>alert('You are NOT allowed to do this.')</script>";

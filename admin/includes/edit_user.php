@@ -3,17 +3,26 @@
       $the_user_id = escape($_GET['edit_user']);
       
       // Getting Values from DataBase
-      $query = "SELECT * FROM users WHERE user_id = {$the_user_id}";
-      $select_user_query = mysqli_query($connection, $query);
-      while ($row = mysqli_fetch_assoc($select_user_query)) {
-         $user_name = $row['user_name'];
-         $user_email = $row['user_email'];
-         $user_password = $row['user_password'];
-         $user_firstname = $row['user_firstname'];
-         $user_lastname = $row['user_lastname'];
-         $user_role = $row['user_role'];
-         $user_image = $row['user_image'];
-      }
+      
+      //    // SELECT USER via mysqli_query:
+      // $query = "SELECT * FROM users WHERE user_id = {$the_user_id}";
+      // $select_user_query = mysqli_query($connection, $query);
+      // while ($row = mysqli_fetch_assoc($select_user_query)) {
+      //    $user_name = $row['user_name'];
+      //    $user_email = $row['user_email'];
+      //    $user_password = $row['user_password'];
+      //    $user_firstname = $row['user_firstname'];
+      //    $user_lastname = $row['user_lastname'];
+      //    $user_role = $row['user_role'];
+      //    $user_image = $row['user_image'];
+      // }
+
+      // SELECT USER via mysqli_stmt:
+      $stmt_select = mysqli_prepare($connection, "SELECT user_name, user_email, user_password, user_firstname, user_lastname, user_role, user_image FROM users WHERE user_id = ?");
+      mysqli_stmt_bind_param($stmt_select, "i", $the_user_id);
+      mysqli_stmt_execute($stmt_select);
+      mysqli_stmt_bind_result($stmt_select, $user_name, $user_email, $user_password, $user_firstname, $user_lastname, $user_role, $user_image);
+      mysqli_stmt_store_result($stmt_select);
 
       // Getting changed Values from $_Post
       if(isset($_POST['update_user'])) {
@@ -48,18 +57,27 @@
             }
 
             // Inserting updated Values into DataBase
-            $query = "UPDATE users SET ";
-            $query .= "user_name = '{$user_name}', ";
-            $query .= "user_email = '{$user_email}', ";
-            $query .= "user_password = '{$hashed_password}', ";
-            $query .= "user_firstname = '{$user_firstname}', ";
-            $query .= "user_lastname = '{$user_lastname}', ";
-            $query .= "user_role = '{$user_role}', ";
-            $query .= "user_image = '{$user_image}' ";
-            // $query .= "post_date = now() ";
-            $query .= "WHERE user_id = '{$the_user_id}'";
-            $user_update_query = mysqli_query($connection, $query);
-            confirmQuery($user_update_query);
+            
+            //    // UPDATE USER via mysqli_query:
+            // $query = "UPDATE users SET ";
+            // $query .= "user_name = '{$user_name}', ";
+            // $query .= "user_email = '{$user_email}', ";
+            // $query .= "user_password = '{$hashed_password}', ";
+            // $query .= "user_firstname = '{$user_firstname}', ";
+            // $query .= "user_lastname = '{$user_lastname}', ";
+            // $query .= "user_role = '{$user_role}', ";
+            // $query .= "user_image = '{$user_image}' ";
+            // $query .= "WHERE user_id = '{$the_user_id}'";
+            // $user_update_query = mysqli_query($connection, $query);
+            // confirmQuery($user_update_query);
+
+               // UPDATE USER via mysqli_stmt:
+            $stmt_update = mysqli_prepare($connection, "UPDATE users SET user_name = ?, user_email = ?, user_password = ?, user_firstname = ?, user_lastname = ?, user_role = ?, user_image = ? WHERE user_id = ?");
+            mysqli_stmt_bind_param($stmt_update, "sssssssi", $user_name, $user_email, $hashed_password, $user_firstname, $user_lastname, $user_role, $user_image, $the_user_id);
+            mysqli_stmt_execute($stmt_update);
+            confirmQuery($stmt_update);
+            mysqli_stmt_close($stmt_update);
+
             echo "<p class='bg-success'>User <b>$user_name</b> Edited.   <a href='users.php'>View All Users</a></p>";
          }
 
@@ -69,55 +87,62 @@
    } else {
       header("Location: index.php");
    }
+
+while (mysqli_stmt_fetch($stmt_select)) {
 ?>
 
-<h3>Edit User</h3>
-<form action="" method="post" enctype="multipart/form-data">
-   <div class="form-group">
-      <label for="user_name">Username</label>
-      <input type="text" class="form-control" name="user_name" value="<?php echo $user_name; ?>">
-   </div>
-   <div class="form-group">
-      <label for="user_email">Email</label>
-      <input type="email" class="form-control" name="user_email" value="<?php echo $user_email; ?>">
-   </div>
-   <div class="form-group">
-      <label for="user_password">Password</label>
-      <input type="password" class="form-control" name="user_password" autocomplete="off">
-   </div>
-   <div class="form-group">
-      <label for="user_firstname">Firstname</label>
-      <input type="text" class="form-control" name="user_firstname" value="<?php echo $user_firstname; ?>">
-   </div>
-   <div class="form-group">
-      <label for="user_lastname">Lastname</label>
-      <input type="text" class="form-control" name="user_lastname" value="<?php echo $user_lastname; ?>">
-   </div>
-   <div class="form-group">
-      <label for="user-role">Select Role</label>
-      <p></p>
-      <select id="user-role" name="user_role">
-         <option value="<?php echo $user_role; ?>"><?php echo $user_role; ?></option>
-         <?php
-            if($user_role == 'admin') {
-               echo "<option value='subscriber'>subscriber</option>";
-            } else {
-               echo "<option value='admin'>admin</option>";
-            }
-         ?>
-      </select>
-   </div>
-   <div class="form-group">
-      <img width="100" src="../images/<?php echo $user_image; ?>" alt="user_image">
-      <label for="user_image">Image</label>
-      <input type="file" name="user_image">
-   </div>
-   <!-- <div class="form-group">
-      <label for="user_date">Date</label>
-      <input type="text" class="form-control" name="user_date">
-   </div> -->
-   <div class="form-group">
-      <input type="submit" class="btn btn-primary" name="update_user" value="Update User">
-      <input type="submit" class="btn btn-primary" name="cancel" value="Cancel">
-   </div>
-</form>
+   <h3>Edit User</h3>
+   <form action="" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+         <label for="user_name">Username</label>
+         <input type="text" class="form-control" name="user_name" value="<?php echo $user_name; ?>">
+      </div>
+      <div class="form-group">
+         <label for="user_email">Email</label>
+         <input type="email" class="form-control" name="user_email" value="<?php echo $user_email; ?>">
+      </div>
+      <div class="form-group">
+         <label for="user_password">Password</label>
+         <input type="password" class="form-control" name="user_password" autocomplete="off">
+      </div>
+      <div class="form-group">
+         <label for="user_firstname">Firstname</label>
+         <input type="text" class="form-control" name="user_firstname" value="<?php echo $user_firstname; ?>">
+      </div>
+      <div class="form-group">
+         <label for="user_lastname">Lastname</label>
+         <input type="text" class="form-control" name="user_lastname" value="<?php echo $user_lastname; ?>">
+      </div>
+      <div class="form-group">
+         <label for="user-role">Select Role</label>
+         <p></p>
+         <select id="user-role" name="user_role">
+            <option value="<?php echo $user_role; ?>"><?php echo $user_role; ?></option>
+            <?php
+               if($user_role == 'admin') {
+                  echo "<option value='subscriber'>subscriber</option>";
+               } else {
+                  echo "<option value='admin'>admin</option>";
+               }
+            ?>
+         </select>
+      </div>
+      <div class="form-group">
+         <img width="100" src="../images/<?php echo $user_image; ?>" alt="user_image">
+         <label for="user_image">Image</label>
+         <input type="file" name="user_image">
+      </div>
+      <!-- <div class="form-group">
+         <label for="user_date">Date</label>
+         <input type="text" class="form-control" name="user_date">
+      </div> -->
+      <div class="form-group">
+         <input type="submit" class="btn btn-primary" name="update_user" value="Update User">
+         <input type="submit" class="btn btn-primary" name="cancel" value="Cancel">
+      </div>
+   </form>
+
+<?php
+}
+confirmQuery($stmt_select);
+mysqli_stmt_close($stmt_select);

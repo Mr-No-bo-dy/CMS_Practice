@@ -20,33 +20,38 @@
                // Incrementing post_views_count every time someone views post:
                $query = "UPDATE posts SET post_views_count = post_views_count + 1 WHERE post_id = '{$the_post_id}'";
                $post_views_count_query = mysqli_query($connection, $query);
-               if(!$post_views_count_query) {
-                   exit("QUERY FAILED ." . mysqli_error($connection));
-               }
+               confirmQuery($post_views_count_query);
 
-               // Hiding draft posts from subscribers but showing them to admins:
-               if(isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
-                  $query = "SELECT * FROM posts WHERE post_id = $the_post_id";
+               // Preparing statements:
+               if(isset($_SESSION['user_name']) && isAdmin($_SESSION['user_name'])) {
+                  $stmt1 = mysqli_prepare($connection, "SELECT post_id, post_title, post_author, post_date, post_image, post_content FROM posts WHERE post_id = ?");
                } else {
-                  $query = "SELECT * FROM posts WHERE post_id = $the_post_id AND post_status = 'published'";
+                  $stmt2 = mysqli_prepare($connection, "SELECT post_id, post_title, post_author, post_date, post_image, post_content FROM posts WHERE post_id = ? AND post_status = ?");
+                  $published = 'published';
                }
-               $select_all_posts_query = mysqli_query($connection, $query);
 
-               if(mysqli_num_rows($select_all_posts_query) >= 1) {   // Condition for not showing 'message' if there is at least 1 published post:
-                  while ($row = mysqli_fetch_assoc($select_all_posts_query)) {
-                     $post_id = $row["post_id"];
-                     $post_title = $row["post_title"];
-                     $post_author = $row["post_author"];
-                     $post_date = $row["post_date"];
-                     $post_image = $row["post_image"];
-                     $post_content = $row["post_content"];
+               // Creating & Executing statements:
+               if(isset($stmt1)) {
+                  mysqli_stmt_bind_param($stmt1, "i", $the_post_id);          // Creating of statement1
+                  mysqli_stmt_execute($stmt1);                                // Execution of statement1
+                  mysqli_stmt_bind_result($stmt1, $post_id, $post_title, $post_author, $post_date, $post_image, $post_content);
+                  $stmt = $stmt1;
+               } else {
+                  mysqli_stmt_bind_param($stmt2, "is", $the_post_id, $published);         // Creating of statement2
+                  mysqli_stmt_execute($stmt2);                                            // Execution of statement2
+                  mysqli_stmt_bind_result($stmt2, $post_id, $post_title, $post_author, $post_date, $post_image, $post_content);
+                  $stmt = $stmt2;
+               }
+
+               // Showing requested post:
+               mysqli_stmt_store_result($stmt);          // Needed for next mysqli_stmt_num_rows cos it doesn't save results in memory
+               if(mysqli_stmt_num_rows($stmt) >= 1) {       // Condition for not showing 'message' if there is at least 1 published post:
+                  while (mysqli_stmt_fetch($stmt)) {
                   ?>
-
                      <h1 class="page-header">
                            Page Heading
                            <small>Secondary Text</small>
                      </h1>
-
                      <!-- First Blog Post -->
                      <h2>
                            <a href="#"><?php echo "$post_title"; ?></a>
@@ -60,10 +65,9 @@
                      <hr>
                      <p><?php echo "$post_content"; ?></p>
                      <hr>
-
                   <?php
                   }
-               ?>
+                  ?>
 
                <!-- Blog Comments -->
 
@@ -73,11 +77,10 @@
                      $query .= "AND comment_status = 'approved' ";
                      $query .= "ORDER BY comment_id DESC ";
                      $select_comment_query = mysqli_query($connection, $query);
+                     confirmQuery($select_comment_query);
 
-                     if(!$select_comment_query) {
-                        exit('Query Failed' . mysqli_error($connection));
-                     }
-
+                     echo "<h3>Comments:</h3>";
+                     
                      while($row = mysqli_fetch_assoc($select_comment_query)) {
                         $comment_author = $row['comment_author'];
                         $comment_content = $row['comment_content'];
@@ -164,8 +167,10 @@
 
                <?php
                } else {
-                  echo "<h1 class='text-center'>Not posts available</h1>";
+                  echo "<h1 class='text-center'>No posts available</h1>";
                }
+               mysqli_stmt_close($stmt);
+               
             } else {
                header("Location: index.php");
             }

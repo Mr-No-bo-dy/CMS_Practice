@@ -4,17 +4,17 @@
 <?php include ("functions.php"); ?>
 
 <?php
-    // Way to NOT allow only guests into Admin:
-    if (!isset($_SESSION['user_role'])) {
-        header("Location: ../index.php");
-    }
-
     // // Way to NOT allow 'subscribers' to get into Admin:
     // if (!isset($_SESSION['user_role'])) {
     //     header("Location: ../index.php");
     // } else if ($_SESSION['user_role'] !== 'admin') {
     //     header("Location: ../index.php");
     // }
+    
+    // Way to NOT allow only guests into Admin:
+    if (!isset($_SESSION['user_role'])) {
+        header("Location: ../index.php");
+    }
 ?>
 
 <!DOCTYPE html>

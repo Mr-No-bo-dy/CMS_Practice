@@ -16,48 +16,67 @@
          <?php
             if(isset($_GET['p_id'])) {
                $the_post_author = escape($_GET['author']);
-            }
 
-            // Hiding draft posts from subscribers but showing them to admins:
-            if(isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
-               $query = "SELECT * FROM posts WHERE post_author = '{$the_post_author}'";
+               // Hiding draft posts from subscribers but showing them to admins:
+
+                  // Preparing statements:
+               if(isset($_SESSION['user_name']) && isAdmin($_SESSION['user_name'])) {
+                  $stmt1 = mysqli_prepare($connection, "SELECT post_id, post_title, post_author, post_date, post_image, post_content FROM posts WHERE post_author = ?");
+               } else {
+                  $stmt2 = mysqli_prepare($connection, "SELECT post_id, post_title, post_author, post_date, post_image, post_content FROM posts WHERE post_author = ? AND post_status = ?");
+                  $published = 'published';
+               }
+
+                  // Creating & Executing statements:
+               if(isset($stmt1)) {
+                  mysqli_stmt_bind_param($stmt1, "s", $the_post_author);     // Creating statement1
+                  mysqli_stmt_execute($stmt1);                               // Execution of statement1
+                  mysqli_stmt_bind_result($stmt1, $post_id, $post_title, $post_author, $post_date, $post_image, $post_content);
+                  $stmt = $stmt1;
+               } else {
+                  mysqli_stmt_bind_param($stmt2, "ss", $the_post_author, $published);     // Creating statement2
+                  mysqli_stmt_execute($stmt2);                                            // Execution of statement2
+                  mysqli_stmt_bind_result($stmt2, $post_id, $post_title, $post_author, $post_date, $post_image, $post_content);
+                  $stmt = $stmt2;
+               }
+
+                  // Showing chosen Author's posts:
+               while(mysqli_stmt_fetch($stmt)) {
+                  $post_content = substr($post_content, 0, 200);
+               ?>
+                  <h1 class="page-header">
+                     Page Heading
+                     <small>Secondary Text</small>
+                  </h1>
+                  <!-- First Blog Post -->
+                  <h2>
+                     <a href="post.php?p_id=<?php echo "$post_id"; ?>"><?php echo "$post_title"; ?></a>
+                  </h2>
+                  <p class="lead">
+                     Post by <?php echo "$post_author"; ?>
+                  </p>
+                  <p><span class="glyphicon glyphicon-time"></span><?php echo "$post_date"; ?></p>
+                  <hr>
+                  <a href="post.php?p_id=<?php echo "$post_id"; ?>">
+                     <img class="img-responsive" src="images/<?php echo "$post_image"; ?>"alt="">
+                  </a>
+                  <hr>
+                  <p><?php echo "$post_content"; ?></p>
+                  <a class="btn btn-primary" href="post.php?p_id=<?php echo "$post_id"; ?>">Read More <span class="glyphicon glyphicon-chevron-right"></span></a>
+                  <hr>
+               <?php 
+               }
+
+               if(mysqli_stmt_num_rows($stmt) === 0) {       // Condition for not showing 'message' if there is at least 1 post to show:
+                  // if(mysqli_stmt_num_rows($stmt) == 0) {       // Condition for not showing 'message' if there is at least 1 post to show:
+                  echo "<h1 class='text-center'>No posts made by this author available</h1>";
+               }
+               mysqli_stmt_close($stmt);
+
             } else {
-               $query = "SELECT * FROM posts WHERE post_author = '{$the_post_author}' AND post_status = 'published'";
+               header("Location: index.php");
             }
-            $select_all_posts_query = mysqli_query($connection, $query);
-
-            while ($row = mysqli_fetch_assoc($select_all_posts_query)) {
-               $post_id = $row["post_id"];
-               $post_title = $row["post_title"];
-               $post_author = $row["post_author"];
-               $post_date = $row["post_date"];
-               $post_image = $row["post_image"];
-               $post_content = substr($row["post_content"], 0, 200);
          ?>
-
-         <h1 class="page-header">
-               Page Heading
-               <small>Secondary Text</small>
-         </h1>
-
-         <!-- First Blog Post -->
-         <h2>
-            <a href="post.php?p_id=<?php echo "$post_id"; ?>"><?php echo "$post_title"; ?></a>
-         </h2>
-         <p class="lead">
-               Post by <?php echo "$post_author"; ?>
-         </p>
-         <p><span class="glyphicon glyphicon-time"></span><?php echo "$post_date"; ?></p>
-         <hr>
-         <a href="post.php?p_id=<?php echo "$post_id"; ?>">
-            <img class="img-responsive" src="images/<?php echo "$post_image"; ?>"alt="">
-         </a>
-         <hr>
-         <p><?php echo "$post_content"; ?></p>
-         <a class="btn btn-primary" href="post.php?p_id=<?php echo "$post_id"; ?>">Read More <span class="glyphicon glyphicon-chevron-right"></span></a>
-         <hr>
-
-         <?php } ?>
 
       </div>
 

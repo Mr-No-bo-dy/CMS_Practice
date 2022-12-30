@@ -3,9 +3,7 @@
       $post_category_id = escape($_POST['post_category']);
       $post_title = escape($_POST['post_title']);
       $post_author = escape($_POST['post_author']);
-      $post_content = escape($_POST['post_content']);
-      $post_tags = escape($_POST['post_tags']);
-      $post_status = escape($_POST['post_status']);
+
       $post_date = escape($_POST['post_date']);
       $post_date = escape(date('y-m-d'));
 
@@ -13,11 +11,23 @@
       $post_image_temp = escape($_FILES['post_image']['tmp_name']);
       move_uploaded_file($post_image_temp, "../images/$post_image");
 
-      $query = "INSERT INTO posts(post_category_id, post_title, post_author, post_date, post_image, post_content, post_tags, post_status) ";
-      $query .= "VALUES('{$post_category_id}', '{$post_title}', '{$post_author}', now(), '{$post_image}', '{$post_content}', '{$post_tags}', '{$post_status}')";
-      $create_post_query = mysqli_query($connection, $query);
+      $post_content = escape($_POST['post_content']);
+      $post_tags = escape($_POST['post_tags']);
+      $post_status = escape($_POST['post_status']);
+
+      // // ADD POST via mysqli_query:
+      // $query = "INSERT INTO posts(post_category_id, post_title, post_author, post_date, post_image, post_content, post_tags, post_status) ";
+      // $query .= "VALUES('{$post_category_id}', '{$post_title}', '{$post_author}', now(), '{$post_image}', '{$post_content}', '{$post_tags}', '{$post_status}')";
+      // $create_post_query = mysqli_query($connection, $query);
+      // confirmQuery($create_post_query);
+
+      // ADD POST via mysqli_stmt:
+      $stmt = mysqli_prepare($connection, "INSERT INTO posts(post_category_id, post_title, post_author, post_date, post_image, post_content, post_tags, post_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+      mysqli_stmt_bind_param($stmt, "isssssss", $post_category_id, $post_title, $post_author, $post_date, $post_image, $post_content, $post_tags, $post_status);
+      mysqli_stmt_execute($stmt);
+      confirmQuery($stmt);
+      mysqli_stmt_close($stmt);
       
-      confirmQuery($create_post_query);
       // header("Location: posts.php");
       $the_post_id = mysqli_insert_id($connection);
       echo "<p class='bg-success'>Post <b>$post_title</b> Created." . " " . "<a href='../post.php?p_id={$the_post_id}'>View This Post</a> or <a href='posts.php'>View All Posts</a> or <a href='posts.php?source=add_post'>Add another Post</a></p>";

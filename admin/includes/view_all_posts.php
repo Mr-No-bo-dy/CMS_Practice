@@ -148,12 +148,12 @@
                $query = "SELECT * FROM comments WHERE comment_post_id = '{$post_id}'";
                $comment_count_query = mysqli_query($connection, $query);
                $count_comments = mysqli_num_rows($comment_count_query);
-               echo "<td><a href='post_comments.php?id={$post_id}'>{$count_comments}</a></td>";
+               echo "<td><a class='btn btn-info' href='post_comments.php?id={$post_id}'>{$count_comments}</a></td>";
 
-               echo "<td><a onClick=\"javascript: return confirm('Are you sure you want to reset $post_title views count?'); \" href='posts.php?reset={$post_id}'>{$post_views_count}</a></td>";
+               echo "<td><a class='btn btn-warning' onClick=\"javascript: return confirm('Are you sure you want to reset $post_title views count?'); \" href='posts.php?reset={$post_id}'>{$post_views_count}</a></td>";
                echo "<td>{$post_date}</td>";
-               echo "<td><a href='posts.php?publish={$post_id}'>Publish</a></td>";
-               echo "<td><a href='posts.php?unpublish={$post_id}'>Unpublish</a></td>";
+               echo "<td><a class='btn btn-success' href='posts.php?publish={$post_id}'>Publish</a></td>";
+               echo "<td><a class='btn btn-primary' href='posts.php?unpublish={$post_id}'>Unpublish</a></td>";
                echo "<td><a class='btn btn-warning' href='posts.php?source=edit_post&p_id={$post_id}'>Edit</a></td>";
 
                // // 1st variant (GET) of Post-Deletion with simple confirmation message:
@@ -165,7 +165,7 @@
 
                <!-- 2nd variant (POST) of Post-Deletion with simple confirmation message: -->
                <form action="" method="post">
-                     <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
+                  <input type="hidden" name="post_id" value="<?php echo $post_id; ?>">
                   <?php
                      // echo "<td><a rel='$post_id' href='javasript:void(0)' class='delete_link'><input class='btn btn-danger' type='submit' name='delete' value='Delete'></a></td>";     // JS Confirmation now does NOT work
                      echo "<td><input onClick=\"javascript: return confirm('Are you sure you want to delete $post_title?'); \" class='btn btn-danger' type='submit' name='delete' value='Delete'></td>";

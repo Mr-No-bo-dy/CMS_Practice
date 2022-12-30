@@ -86,8 +86,8 @@
                   echo "<td><a href='../post.php?p_id=$post_id'>$post_title</a></td>";
                }
 
-               echo "<td><a href='comments.php?approved=$comment_id'>Approve</a></td>";
-               echo "<td><a href='comments.php?unapproved=$comment_id'>Unapprove</a></td>";
+               echo "<td><a class='btn btn-success' href='comments.php?approved=$comment_id'>Approve</a></td>";
+               echo "<td><a class='btn btn-primary' href='comments.php?unapproved=$comment_id'>Unapprove</a></td>";
                echo "<td><a class='btn btn-warning' href='comments.php?source=edit_comment&comment_id=$comment_id'>Edit</a></td>";
                
                // // 1st variant (GET) of Comment-Deletion with simple confirmation message:

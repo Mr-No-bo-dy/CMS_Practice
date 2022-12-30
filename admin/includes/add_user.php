@@ -17,11 +17,19 @@
       // NEW password encryption:
       $user_password = password_hash($user_password, PASSWORD_BCRYPT, array('cost' => 12));
 
-      $query = "INSERT INTO users(user_name, user_email, user_password, user_firstname, user_lastname, user_role, user_image) ";
-      $query .= "VALUES('{$user_name}', '{$user_email}', '{$user_password}', '{$user_firstname}', '{$user_lastname}', '{$user_role}', '{$user_image}')";
-      $create_user_query = mysqli_query($connection, $query);
-      
-      confirmQuery($create_user_query);
+      // // ADD USER via mysqli_query:
+      // $query = "INSERT INTO users(user_name, user_email, user_password, user_firstname, user_lastname, user_role, user_image) ";
+      // $query .= "VALUES ('{$user_name}', '{$user_email}', '{$user_password}', '{$user_firstname}', '{$user_lastname}', '{$user_role}', '{$user_image}')";
+      // $create_user_query = mysqli_query($connection, $query);      
+      // confirmQuery($create_user_query);
+
+      // ADD USER via mysqli_stmt:
+      $stmt = mysqli_prepare($connection, "INSERT INTO users(user_name, user_email, user_password, user_firstname, user_lastname, user_role, user_image) VALUES (?, ?, ?, ?, ?, ?, ?)");
+      mysqli_stmt_bind_param($stmt, "sssssss", $user_name, $user_email, $user_password, $user_firstname, $user_lastname, $user_role, $user_image);
+      mysqli_stmt_execute($stmt);
+      confirmQuery($stmt);
+      mysqli_stmt_close($stmt);
+
       // header("Location: users.php");
       echo "<p class='bg-success'>User <b>$user_name</b> Created." . " " . "<a href='users.php'>View All Users</a></p>";
    } else if (isset($_POST['cancel'])) {

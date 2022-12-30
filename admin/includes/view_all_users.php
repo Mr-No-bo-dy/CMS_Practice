@@ -42,8 +42,8 @@
             echo "<td>{$user_role}</td>";
             // echo "<td>{$user_date}</td>";
 
-            echo "<td><a href='users.php?change_to_admin={$user_id}'>Admin</a></td>";
-            echo "<td><a href='users.php?change_to_subscriber={$user_id}'>Subscriber</a></td>";
+            echo "<td><a class='btn btn-success' href='users.php?change_to_admin={$user_id}'>Admin</a></td>";
+            echo "<td><a class='btn btn-primary' href='users.php?change_to_subscriber={$user_id}'>Subscriber</a></td>";
             echo "<td><a class='btn btn-warning' href='users.php?source=edit_user&edit_user={$user_id}'>Edit</a></td>";
 
             // // 1st variant (GET) of User-Deletion with simple confirmation message:
