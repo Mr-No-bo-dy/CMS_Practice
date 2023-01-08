@@ -1,0 +1,20 @@
+RewriteEngine on
+
+RewriteRule ^(index|contact|registration)$ $1.php [NC,L]
+
+RewriteRule ^category/(\d+)$ category.php?category=$1 [NC,L]
+
+RewriteRule ^post/(\d+)$ post.php?p_id=$1 [NC,L]
+
+
+# Поки не дороблено:
+# RewriteRule ^(users)$ $1.php [NC,L]
+# RewriteRule ^(index|users|posts|comments|categories)$ $1.php [NC,L]
+
+# RewriteRule ^post_edit/$ posts.php?source=edit_post&p_id= [NC,L]
+# RewriteRule ^posts.php?source=edit_post&p_id=$ post_edit/$1 [NC,L]
+
+# RewriteRule ^author_post/$ author_post.php?author=$1 [NC,L]
+# RewriteRule ^/(\d+)$ &p_id=$1 [NC,L]
+
+# RewriteRule ^author_post(\???)/(\d+)$ author_post.php?author=$1&p_id=$2 [NC,L]

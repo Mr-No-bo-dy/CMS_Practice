@@ -54,14 +54,14 @@
                      </h1>
                      <!-- First Blog Post -->
                      <h2>
-                           <a href="#"><?php echo "$post_title"; ?></a>
+                        <?php echo "$post_title"; ?>
                      </h2>
                      <p class="lead">
-                           by <a href="author_post.php?author=<?php echo "$post_author"; ?>&p_id=<?php echo "$post_id"; ?>"><?php echo "$post_author"; ?></a>
+                        by <a href="/!php/_cms_practice/author_post.php?author=<?php echo "$post_author"; ?>&p_id=<?php echo "$post_id"; ?>"><?php echo "$post_author"; ?></a>
                      </p>
                      <p><span class="glyphicon glyphicon-time"></span><?php echo "$post_date"; ?></p>
                      <hr>
-                     <img class="img-responsive" src="images/<?php echo "$post_image"; ?>"alt="">
+                     <img class="img-responsive" src="/!php/_cms_practice/images/<?php echo "$post_image"; ?>"alt="">
                      <hr>
                      <p><?php echo "$post_content"; ?></p>
                      <hr>
@@ -135,7 +135,7 @@
                            if(!$create_comment_query) {
                               exit('QUERY FAILED' . mysqli_error($connection));
                            }         
-                           echo "<p class='bg-success'>Comment to <b>$post_title</b> Added." . " " . "<a href='post.php?p_id={$the_post_id}'>Return to Post</a></p>";
+                           echo "<p class='bg-success'>Comment to <b>$post_title</b> Added." . " " . "<a href='/!php/_cms_practice/post/{$the_post_id}'>Return to Post</a></p>";
                         } else {
                            // echo "<p class='bg-warning'>At least one of the fields is empty.</p>";
                            echo "<script>alert('Fields cannot be empty.')</script>";

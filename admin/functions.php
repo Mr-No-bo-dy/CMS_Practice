@@ -385,7 +385,7 @@
    // Constantly Geting number of Online Users:
    // Через те, що в мене допуск в Адмінку мають лише адміни, то й лічильник цей показує лише адмінів:
    function usersOnlineCount() {
-      if(isset($_GET['onlineusers'])) {   // Included Srcipt to "Constantly sending request to DB to get the count of Users online:"
+      if(isset($_GET['onlineusers'])) {   // Included Script to "Constantly sending request to DB to get the count of Users online:"
          global $connection;
          if(!$connection) {
             session_start();

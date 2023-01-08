@@ -71,7 +71,7 @@
          confirmQuery($stmt_update);
          mysqli_stmt_close($stmt_update);
 
-         echo "<p class='bg-success'>Post <b>$post_title</b> Edited.   <a href='../post.php?p_id={$post_id_edit}'>View Post</a> or <a href='posts.php'>Edit other Posts</a></p>";
+         echo "<p class='bg-success'>Post <b>$post_title</b> Edited.   <a href='/!php/_cms_practice/post/{$post_id_edit}'>View Post</a> or <a href='posts.php'>Edit other Posts</a></p>";
       } else if (isset($_POST['cancel'])) {
          header("Location: posts.php");
       }

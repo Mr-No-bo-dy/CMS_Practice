@@ -10,7 +10,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
          </button>
-         <a class="navbar-brand" href="index.php">Front Page</a>
+         <a class="navbar-brand" href="/!php/_cms_practice/">Front Page</a>
       </div>
 
       <!-- Collect the nav links, forms, and other content for toggling -->
@@ -38,14 +38,14 @@
                      $contact_class = 'active';
                   }
 
-                  echo "<li class='$category_class'><a href='category.php?category=$cat_id'>{$cat_title}</a></li>";
+                  echo "<li class='$category_class'><a href='/!php/_cms_practice/category/{$cat_id}'>{$cat_title}</a></li>";
                }
 
             // if(isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {     // Allows only admins see link into Admin panel
             if(isset($_SESSION['user_role'])) {     // Allows only logged users see link into Admin panel
             ?>
                <li>
-                  <a href="admin">Admin</a>
+                  <a href="/!php/_cms_practice/admin">Admin</a>
                </li>
             <?php
             }
@@ -53,7 +53,7 @@
             if(!isset($_SESSION['user_role'])) {
             ?>
                <li class="<?php echo $registration_class; ?>">
-                  <a href="registration.php">Registration</a>
+                  <a href="/!php/_cms_practice/registration">Registration</a>
                </li>
             <?php
             }
@@ -61,7 +61,7 @@
             if(isset($_SESSION['user_role'])) {
             ?>
                <li class="<?php echo $contact_class; ?>">
-                  <a href="contact.php">Contact</a>
+                  <a href="/!php/_cms_practice/contact">Contact</a>
                </li>
             <?php
             }
@@ -71,7 +71,7 @@
                   if($_SESSION['user_role'] == 'admin') {
                      if (isset($_GET['p_id'])) {
                         $post_id_edit = escape($_GET['p_id']);
-                        echo "<li><a href='admin/posts.php?source=edit_post&p_id={$post_id_edit}'>Edit Post</a></li>";
+                        echo "<li><a href='/!php/_cms_practice/admin/posts.php?source=edit_post&p_id={$post_id_edit}'>Edit Post</a></li>";
                      }
                   }
                }

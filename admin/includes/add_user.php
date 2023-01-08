@@ -67,7 +67,6 @@
       </select>
    </div>
    <div class="form-group">
-      <!-- <img width="100" src="../images/<?php echo $user_image; ?>" alt="user_image"> -->
       <label for="user_image">Image</label>
       <input type="file" name="user_image">
    </div>
