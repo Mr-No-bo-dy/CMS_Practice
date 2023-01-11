@@ -1,7 +1,7 @@
       <footer>
          <div class="row">
             <div class="col-lg-12">
-               <p>Copyright &copy; My Website 2022</p>
+               <p>Copyright &copy; CMS by MrNobody</p>
             </div>
             <!-- /.col-lg-12 -->
          </div>

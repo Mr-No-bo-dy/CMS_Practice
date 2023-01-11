@@ -1,13 +1,25 @@
+<!-- to Execute Login here: -->
+<?php
+   if(ifItIsMethod('post')){
+      if(isset($_POST['user_name']) && isset($_POST['user_password'])){
+         loginUser(escape($_POST['user_name']), escape($_POST['user_password']));
+      } else {
+         redirect('/!php/_cms_practice/index');
+      }
+   }
+?>
+
 <div class="col-md-4">
 
    <!-- Login -->
    <div class="well">      
       <?php if(isset($_SESSION['user_role'])): ?>
          <h4>Logged in as <b><?php echo $_SESSION['user_name']; ?></b></h4>
-         <a href="includes/logout.php" class="btn btn-primary">Logout</a>
+         <a href="/!php/_cms_practice/includes/logout.php" class="btn btn-primary">Logout</a>
       <?php else: ?>
          <h4>Login</h4>
-         <form action="includes/login.php" method="post">
+         <!-- <form action="/!php/_cms_practice/login" method="post"> -->  <!-- to Execute Login in Login.php -->
+         <form method="post">    <!-- to Execute Login here -->
             <div class="form-group">
                <input name="user_name" type="text" class="form-control" placeholder="Enter Username">
             </div>
@@ -16,6 +28,9 @@
             <span class="input-group-btn">
                <button class="btn btn-primary" type="submit" name="login">Submit</button>
             </span>
+            </div>
+            <div class="form-group">
+               <a href="forgot_pass.php?forgot=<?php echo uniqid(true); ?>">Forgot Password</a>
             </div>
          </form> <!--login form-->
          <!-- /.input-group -->

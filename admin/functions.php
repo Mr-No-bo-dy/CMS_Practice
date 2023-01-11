@@ -14,6 +14,33 @@
    }
 
 
+   // Helper Functions:
+      function redirect($location) {
+         header("Location:" . $location);
+         exit;
+      }
+
+      function ifItIsMethod($method=null) {
+         if ($_SERVER['REQUEST_METHOD'] == strtoupper($method)) {
+            return true;
+         }
+         return false;
+      }
+
+      function isLoggedIn(){
+         if (isset($_SESSION['user_role'])) {
+            return true;
+         }
+         return false;
+      }
+
+      function checkIfUserIsLoggedInAndRedirect($redirectLocation=null) {
+         if (ifItIsMethod()) {
+            redirect($redirectLocation);
+         }
+      }
+
+
     // Security function to NOT allow subscribers into "some page":
    function isAdmin($name) {
       global $connection;
@@ -32,10 +59,23 @@
    // Verification-Function to NOT allow registration user with same 'user_name':
    function user_name_Exist($name) {
       global $connection;
-      $query = "SELECT user_name FROM users WHERE user_name = '{$name}'";
-      $result = mysqli_query($connection, $query);
-      confirmQuery($result);
-      $row = mysqli_num_rows($result);
+
+      //    // Check if Name is occupied via mysqli_query:
+      // $query = "SELECT user_name FROM users WHERE user_name = '{$name}'";
+      // $result = mysqli_query($connection, $query);
+      // confirmQuery($result);
+      // $row = mysqli_num_rows($result);
+      
+         // Check if Name is occupied via mysqli_stmt:
+      $stmt = mysqli_prepare($connection, "SELECT user_name FROM users WHERE user_name = ?");
+      mysqli_stmt_bind_param($stmt, "s", $name);
+      mysqli_stmt_execute($stmt);
+      mysqli_stmt_bind_result($stmt, $name);
+      mysqli_stmt_store_result($stmt);
+      $row = mysqli_stmt_num_rows($stmt);
+      confirmQuery($stmt);
+      mysqli_stmt_close($stmt);
+
       if($row > 0) {
          return true;
       } else {
@@ -46,10 +86,23 @@
    // Verification-Function to NOT allow registration user with same 'user_email':
    function user_email_Exist($email) {
       global $connection;
-      $query = "SELECT user_email FROM users WHERE user_email = '{$email}'";
-      $result = mysqli_query($connection, $query);
-      confirmQuery($result);
-      $row = mysqli_num_rows($result);
+
+      //    // Check if Email is already registered via mysqli_query:
+      // $query = "SELECT user_email FROM users WHERE user_email = '{$email}'";
+      // $result = mysqli_query($connection, $query);
+      // confirmQuery($result);
+      // $row = mysqli_num_rows($result);
+      
+         // Check if Email is already registered via mysqli_stmt:
+      $stmt = mysqli_prepare($connection, "SELECT user_email FROM users WHERE user_email = ?");
+      mysqli_stmt_bind_param($stmt, "s", $email);
+      mysqli_stmt_execute($stmt);
+      mysqli_stmt_bind_result($stmt, $email);
+      mysqli_stmt_store_result($stmt);
+      $row = mysqli_stmt_num_rows($stmt);
+      confirmQuery($stmt);
+      mysqli_stmt_close($stmt);
+         
       if($row > 0) {
          return true;
       } else {
@@ -117,8 +170,9 @@
             header("Location: /!php/_cms_practice/admin/index.php");       // Absolute path
          } else {
             // header("Location: ../index.php");                        // Relative path
-            header("Location: /!php/_cms_practice/index.php");             // Absolute path
+            // header("Location: /!php/_cms_practice/index");                 // Absolute path
             // echo "<script>alert('Wrong Username or Password.')</script>";        // Not implemented yet
+            return false;
          }
       }
       confirmQuery($stmt_login);

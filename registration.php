@@ -25,7 +25,7 @@
          $error['name'] = 'Username cannot be empty.';
       }
       if(user_name_Exist($user_name)) {
-         $error['name'] = "$user_name is already Exists, pick another one.";
+         $error['name'] = "$user_name is already exists, pick another one.";
       }
       if($user_email == '') {
          $error['email'] = 'Email cannot be empty.';
