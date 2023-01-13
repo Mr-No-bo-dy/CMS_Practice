@@ -38,6 +38,13 @@
     // 2b/2c. Connection to DataBase itself:
     // $connection = mysqli_connect(db_host, db_user, db_pass, db_name);
     $connection = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+    //  // Setting Charset in DB via Query:
+    // $query = "SET NAMES 'utf8'";
+    // mysqli_query($connection, $query);
+
+        // Setting Charset in DB via Function:
+    mysqli_set_charset($connection, "utf8mb4");
     
     /*
     // Just simple verification:

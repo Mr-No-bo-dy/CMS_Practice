@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 10, 2023 at 11:33 AM
--- Server version: 10.4.27-MariaDB
--- PHP Version: 8.1.12
+-- Generation Time: Jan 13, 2023 at 07:21 PM
+-- Server version: 10.4.24-MariaDB
+-- PHP Version: 8.1.6
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `categories` (
   `cat_id` int(3) NOT NULL,
   `cat_title` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `categories`
@@ -61,7 +61,7 @@ CREATE TABLE `comments` (
   `comment_edit_author` varchar(255) NOT NULL,
   `comment_editors_comment` text NOT NULL,
   `comment_edited_date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `comments`
@@ -104,7 +104,7 @@ CREATE TABLE `posts` (
   `post_comment_count` int(11) NOT NULL,
   `post_status` varchar(255) NOT NULL DEFAULT 'draft',
   `post_views_count` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `posts`
@@ -113,9 +113,9 @@ CREATE TABLE `posts` (
 INSERT INTO `posts` (`post_id`, `post_category_id`, `post_title`, `post_author`, `post_date`, `post_image`, `post_content`, `post_tags`, `post_comment_count`, `post_status`, `post_views_count`) VALUES
 (1, 3, 'John\'s CMS PHP course is nice', 'John Doe', '2023-01-04', 'image_1.jpg', '<p>Wow I like this course</p>', 'john, cms, php', 1, 'draft', 53),
 (2, 2, 'Javascript course Post', 'Belinda', '2022-12-28', 'image_4.jpg', '<p>Not Wow. This is not cool post. Belinda, don\\\'t call me.</p>', 'javascript, course, class, belinda', 3, 'published', 65),
-(4, 4, 'Jane\'s Java course', 'Jane Doe', '2023-01-04', 'image_2.jpg', '<p>Updated Updated content 3.</p>', 'JS, PHP, class', 4, 'published', 42),
+(4, 4, 'Jane\'s Java course', 'Jane Doe', '2023-01-04', 'image_2.jpg', '<p>Updated Updated content 3.</p>', 'JS, PHP, class', 4, 'published', 40),
 (7, 1, 'Lorem Ipsum', 'Qwerty', '2022-09-17', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 5, 'published', 48),
-(8, 4, 'Test cat_title', 'James', '2022-10-16', 'image_5.jpg', 'Some content of Post.', 'asdf', 6, 'published', 33),
+(8, 4, 'Test cat_title', 'James', '2022-10-16', 'image_5.jpg', 'Some content of Post.', 'asdf', 6, 'published', 32),
 (13, 3, 'PHP Post 1', 'James Din', '2022-11-03', 'image_1.jpg', '<p>PHP Post. That is it.</p>', 'PHP, CMS', 2, 'draft', 5),
 (14, 2, 'Lorem Ipsum', 'John', '2022-11-04', 'image_5.jpg', '<p><strong>Lorem Ipsum</strong> is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry_s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>', 'PHP, CMS, john', 0, 'published', 0),
 (15, 4, 'This is another post', 'John', '2022-09-27', 'image_4.jpg', 'This is another post. One more post.', 'JS, class, john', 0, 'published', 0),
@@ -133,7 +133,8 @@ INSERT INTO `posts` (`post_id`, `post_category_id`, `post_title`, `post_author`,
 (45, 1, 'Lorem Ipsum', 'Qwerty', '2022-11-04', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 0, 'published', 0),
 (46, 2, 'JS 3', 'James Din', '2022-11-06', 'image_4.jpg', '<p>Some JavaScript but not Java scripts…</p>', 'JS, class', 0, 'published', 1),
 (48, 1, 'Lorem Ipsum', 'Qwerty', '2022-11-06', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 0, 'published', 0),
-(59, 2, 'Javascript post', 'Jane Doe', '2022-12-29', 'image_4.jpg', '<p>This is just another Javascript post.</p>', 'JS, javascript, jane', 0, 'published', 3);
+(59, 2, 'Javascript post', 'Jane Doe', '2022-12-29', 'image_4.jpg', '<p>This is just another Javascript post.</p>', 'JS, javascript, jane', 0, 'published', 3),
+(60, 8, 'My Post', 'user86', '2023-01-13', '', '<p>This is my 1st post.</p>', 'html, bootstrap', 0, 'published', 4);
 
 -- --------------------------------------------------------
 
@@ -151,7 +152,7 @@ CREATE TABLE `users` (
   `user_image` text NOT NULL,
   `user_role` varchar(255) NOT NULL,
   `token` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `users`
@@ -170,12 +171,11 @@ INSERT INTO `users` (`user_id`, `user_name`, `user_password`, `user_firstname`, 
 (41, 'demo40', '$2y$12$GMks9/l5wGMhP1sNWgPT2eRFqxdAX0yZEKxH9Mw.AArNmeg4c/GhK', 'demo', '40', 'demo40@mail.com', 'image_2.jpg', 'subscriber', ''),
 (45, 'nick11', '$2y$12$JQGMJjsrLRbBHGRBKKq63uep6SmnlzDKw6Pg8uRBQQNnlMkn2qJWG', 'Nick', 'n11', 'nick11@mail.com', 'image_1.jpg', 'subscriber', ''),
 (46, 'petee', '$2y$12$Qkrvp3M2pDLtTeID.KENPuHkQYs4ZkwfDk21WUwiiUx8UNi7EkdyC', 'Petee', '12345', 'petee@mail.com', 'image_1.jpg', 'subscriber', ''),
-(47, 'peter', '$2y$12$OBjD4S5xaSpUwzwoFoiSNOf1114lZd0iB6ssxtTNVnMn7EiIlTF7u', 'Peter', 'pen', 'peter@mail.com', 'image_1.jpg', 'admin', '864f0dff180bde75004a95b714e86a2bbe3b99e8c2565d9970968ea28dadd715cf66a08323543c0df8d5ca7808f11f400d17'),
+(47, 'peter', '$2y$12$OBjD4S5xaSpUwzwoFoiSNOf1114lZd0iB6ssxtTNVnMn7EiIlTF7u', 'Peter', 'pen', 'peter@mail.com', 'image_1.jpg', 'admin', ''),
 (59, 'Jason', '$2y$12$91rt35hDFy94vBptXoOhJ.0bSevcVidgLMu2uwothXCK0Nar4mYm.', 'Jason', 'born', 'jason@mail.com', 'image_2.jpg', 'subscriber', ''),
 (78, 'james', '$2y$12$8j5rW.afyyC5aBTyuWOGBe8j9yDM/GzxWb1Li9ZFktQyVFJHZtTfG', 'James', 'milner', 'james@mail.com', 'image_5.jpg', 'subscriber', ''),
 (85, 'pila', '$2y$12$3EDb0FELuWhVZswihO.g9.kMS0SKi4WZyP9xGyojR1Gg.ZHIL6qhu', 'Pila', 'pila', 'pila@mail.com', 'image_5.jpg', 'subscriber', ''),
-(86, 'user86', '$2y$12$6/p2c2XmEo0yOWDYhb/Va.NpLb.Sqcx8Vdv5JNfqx8tLhYbEIjDGK', 'user86', '86', 'user86@mail.com', 'image_3.jpg', 'subscriber', ''),
-(93, 'Mark', '$2y$12$h.ylfAWazC82BYlQmKnAbOuqW7NEymCehv/1kIwarcOTFRTTDIaAG', '', '', 'mark@mail.com', '', 'subscriber', '');
+(86, 'user86', '$2y$12$2PYwHF1g/HgTIcbnmIq4LecEuyQIFAbll8WzijMliX2i3OVfjmf1a', 'user86', '86', 'user86@mail.com', 'image_3.jpg', 'subscriber', '');
 
 -- --------------------------------------------------------
 
@@ -187,17 +187,17 @@ CREATE TABLE `users_online` (
   `id` int(11) NOT NULL,
   `session` varchar(255) NOT NULL,
   `time` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `users_online`
 --
 
 INSERT INTO `users_online` (`id`, `session`, `time`) VALUES
-(1, '3tc19hgb6jhhplmq86ueslgrks', 1671548250),
+(1, '3tc19hgb6jhhplmq86ueslgrks', 1673634108),
 (2, 'cerp2vnrnrmfeuoju35cglajo0', 1666275478),
 (3, 'h2i931c6p66bqmv2k6i5caj2f1', 1666182690),
-(4, '19kst44f4iig2l3hm0dfkfujro', 1673346805);
+(4, '19kst44f4iig2l3hm0dfkfujro', 1673619850);
 
 --
 -- Indexes for dumped tables
@@ -225,7 +225,8 @@ ALTER TABLE `posts`
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`);
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `user_name` (`user_name`);
 
 --
 -- Indexes for table `users_online`
@@ -253,13 +254,13 @@ ALTER TABLE `comments`
 -- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `post_id` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `post_id` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
+  MODIFY `user_id` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
 
 --
 -- AUTO_INCREMENT for table `users_online`

@@ -56,6 +56,16 @@
    }
 
 
+   // to Show default image when none are in post:
+   function imagePlaceholder($image = null) {
+      if (!$image) {
+         return "image_2.jpg";
+      } else {
+         return $image;
+      }
+   }
+   
+
    // Verification-Function to NOT allow registration user with same 'user_name':
    function user_name_Exist($name) {
       global $connection;

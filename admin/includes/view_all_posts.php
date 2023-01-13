@@ -96,12 +96,15 @@
       </thead>
       <tbody>
          <?php
+            // $user_name = $_SESSION['user_name'];   // to Show only post made by current user
+            
             // $query = "SELECT * FROM posts ORDER BY post_id DESC";  // Commented After Joining 2 tables in DataBase
             // Temporary Joining 2 tables in DataBase (Для того, щоб сторінка швидше працювала):
             $query = "SELECT posts.post_id, posts.post_author, posts.post_title, posts.post_category_id, posts.post_status, posts.post_image, posts.post_tags, ";
             $query .= "posts.post_content, posts.post_comment_count, posts.post_views_count, posts.post_date, categories.cat_id, categories.cat_title ";
             $query .= "FROM posts ";
             $query .= "LEFT JOIN categories ON posts.post_category_id = categories.cat_id ORDER BY post_id DESC";
+            // $query .= "LEFT JOIN categories ON posts.post_category_id = categories.cat_id WHERE post_author = '{$user_name}' ORDER BY post_id DESC";   // to Show only post made by current user
 
             $select_posts = mysqli_query($connection, $query);
             while ($row = mysqli_fetch_assoc($select_posts)) {

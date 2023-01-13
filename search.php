@@ -61,7 +61,7 @@
                      <p><span class="glyphicon glyphicon-time"></span><?php echo "$post_date"; ?></p>
                      <hr>
                      <a href="/!php/_cms_practice/post/<?php echo "$post_id"; ?>">
-                        <img class="img-responsive" src="/!php/_cms_practice/images/<?php echo "$post_image"; ?>"alt="">
+                        <img class="img-responsive" src="/!php/_cms_practice/images/<?php echo imagePlaceholder($post_image); ?>"alt="">
                      </a>
                      <hr>
                      <p><?php echo "$post_content"; ?></p>

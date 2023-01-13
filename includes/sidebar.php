@@ -1,10 +1,12 @@
 <!-- to Execute Login here: -->
 <?php
    if(ifItIsMethod('post')){
-      if(isset($_POST['user_name']) && isset($_POST['user_password'])){
-         loginUser(escape($_POST['user_name']), escape($_POST['user_password']));
-      } else {
-         redirect('/!php/_cms_practice/index');
+      if (isset($_POST['login'])) {
+         if (isset($_POST['user_name']) && isset($_POST['user_password'])) {
+            loginUser(escape($_POST['user_name']), escape($_POST['user_password']));
+         } else {
+            redirect('/!php/_cms_practice/index');
+         }
       }
    }
 ?>
@@ -18,8 +20,8 @@
          <a href="/!php/_cms_practice/includes/logout.php" class="btn btn-primary">Logout</a>
       <?php else: ?>
          <h4>Login</h4>
-         <!-- <form action="/!php/_cms_practice/login" method="post"> -->  <!-- to Execute Login in Login.php -->
-         <form method="post">    <!-- to Execute Login here -->
+         <!-- <form action="/!php/_cms_practice/login" method="post" autocomplete="off"> -->  <!-- to Execute Login in Login.php -->
+         <form method="post" autocomplete="off">    <!-- to Execute Login here -->
             <div class="form-group">
                <input name="user_name" type="text" class="form-control" placeholder="Enter Username">
             </div>
