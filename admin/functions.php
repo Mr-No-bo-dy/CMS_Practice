@@ -1,4 +1,9 @@
 <?php
+   function query($query) {
+      global $connection;
+      return mysqli_query($connection, $query);
+   }
+
    function confirmQuery($result) {
       global $connection;
       if(!$result) {
@@ -14,7 +19,7 @@
    }
 
 
-   // Helper Functions:
+   // Helper Functions (for reset_pass):
       function redirect($location) {
          header("Location:" . $location);
          exit;
@@ -27,7 +32,7 @@
          return false;
       }
 
-      function isLoggedIn(){
+      function isLoggedIn() {
          if (isset($_SESSION['user_role'])) {
             return true;
          }
@@ -39,6 +44,39 @@
             redirect($redirectLocation);
          }
       }
+
+
+   // Geting logged in user_id:
+   function loggedInUserId() {
+      if(isLoggedIn()) {
+         $result = query("SELECT * FROM users WHERE user_name ='" . $_SESSION['user_name'] . "'");
+         confirmQuery($result);
+         $user = mysqli_fetch_array($result);
+         if(mysqli_num_rows($result) >= 1) {
+            return $user['user_id'];
+         }
+      }
+      return false;
+   }
+
+   // Checking if current user Liked this post:
+   function userLikedPost($post_id) {
+      $result = query("SELECT * FROM likes WHERE user_id =" . loggedInUserId() . " AND post_id = {$post_id}");
+      confirmQuery($result);
+      if(mysqli_num_rows($result) >= 1) {
+         return true;
+      } else {
+         return false;
+      }
+   }
+
+
+   // Geting number of Likes for current post:
+   function getPostLikes($post_id) {
+      $result = query("SELECT * FROM likes WHERE post_id = $post_id");
+      confirmQuery($result);
+      echo mysqli_num_rows($result);
+   }
 
 
     // Security function to NOT allow subscribers into "some page":

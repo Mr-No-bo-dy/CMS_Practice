@@ -12,10 +12,10 @@
    <!-- /.container -->
 
    <!-- jQuery -->
-   <script src="js/jquery.js"></script>
+   <script src="\!php\_cms_practice/js/jquery.js"></script>
 
    <!-- Bootstrap Core JavaScript -->
-   <script src="js/bootstrap.min.js"></script>
+   <script src="\!php\_cms_practice/js/bootstrap.min.js"></script>
 
    <!-- Calling SKEditor for Comments: -->
    <script>

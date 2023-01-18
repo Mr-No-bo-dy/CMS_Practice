@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 13, 2023 at 07:21 PM
--- Server version: 10.4.24-MariaDB
--- PHP Version: 8.1.6
+-- Generation Time: Jan 18, 2023 at 12:38 PM
+-- Server version: 10.4.27-MariaDB
+-- PHP Version: 8.1.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `categories` (
   `cat_id` int(3) NOT NULL,
   `cat_title` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `categories`
@@ -61,7 +61,7 @@ CREATE TABLE `comments` (
   `comment_edit_author` varchar(255) NOT NULL,
   `comment_editors_comment` text NOT NULL,
   `comment_edited_date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `comments`
@@ -89,6 +89,30 @@ INSERT INTO `comments` (`comment_id`, `comment_post_id`, `comment_author`, `comm
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `likes`
+--
+
+CREATE TABLE `likes` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `post_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `likes`
+--
+
+INSERT INTO `likes` (`id`, `user_id`, `post_id`) VALUES
+(17, 47, 13),
+(18, 86, 2),
+(19, 47, 2),
+(20, 1, 1),
+(21, 1, 4),
+(23, 1, 7);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `posts`
 --
 
@@ -103,38 +127,39 @@ CREATE TABLE `posts` (
   `post_tags` varchar(255) NOT NULL,
   `post_comment_count` int(11) NOT NULL,
   `post_status` varchar(255) NOT NULL DEFAULT 'draft',
-  `post_views_count` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `post_views_count` int(11) NOT NULL,
+  `likes` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `posts`
 --
 
-INSERT INTO `posts` (`post_id`, `post_category_id`, `post_title`, `post_author`, `post_date`, `post_image`, `post_content`, `post_tags`, `post_comment_count`, `post_status`, `post_views_count`) VALUES
-(1, 3, 'John\'s CMS PHP course is nice', 'John Doe', '2023-01-04', 'image_1.jpg', '<p>Wow I like this course</p>', 'john, cms, php', 1, 'draft', 53),
-(2, 2, 'Javascript course Post', 'Belinda', '2022-12-28', 'image_4.jpg', '<p>Not Wow. This is not cool post. Belinda, don\\\'t call me.</p>', 'javascript, course, class, belinda', 3, 'published', 65),
-(4, 4, 'Jane\'s Java course', 'Jane Doe', '2023-01-04', 'image_2.jpg', '<p>Updated Updated content 3.</p>', 'JS, PHP, class', 4, 'published', 40),
-(7, 1, 'Lorem Ipsum', 'Qwerty', '2022-09-17', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 5, 'published', 48),
-(8, 4, 'Test cat_title', 'James', '2022-10-16', 'image_5.jpg', 'Some content of Post.', 'asdf', 6, 'published', 32),
-(13, 3, 'PHP Post 1', 'James Din', '2022-11-03', 'image_1.jpg', '<p>PHP Post. That is it.</p>', 'PHP, CMS', 2, 'draft', 5),
-(14, 2, 'Lorem Ipsum', 'John', '2022-11-04', 'image_5.jpg', '<p><strong>Lorem Ipsum</strong> is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry_s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>', 'PHP, CMS, john', 0, 'published', 0),
-(15, 4, 'This is another post', 'John', '2022-09-27', 'image_4.jpg', 'This is another post. One more post.', 'JS, class, john', 0, 'published', 0),
-(16, 1, 'Lorem Ipsum2', 'James Din', '2022-09-28', 'image_3.jpg', 'Just test massage post.', 'JS, PHP, class', 0, 'published', 9),
-(20, 3, 'PHP Post 2', 'Qwerty', '2022-11-03', 'image_1.jpg', '<p>This is some PHP Post.</p>', 'PHP, CMS, Qwerty', 0, 'published', 7),
-(21, 3, 'PHP Post 3', 'Qwerty', '2022-10-04', 'image_1.jpg', '<p>Post text CMS <strong>PHP</strong> Smth….</p>', 'PHP, CMS', 0, 'draft', 10),
-(24, 2, 'Add post test 2', 'John Doe', '2022-10-19', 'image_4.jpg', '<p>This is another <strong>Add post</strong> <i>test</i>.</p>', 'JS, PHP, class', 2, 'published', 0),
-(32, 1, 'Java course', 'Jane Doe', '2022-10-13', 'image_2.jpg', 'Updated content 2', 'JS, PHP, class, jane', 0, 'published', 5),
-(33, 1, 'Lorem Ipsum', 'Qwerty', '2022-10-13', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 0, 'published', 1),
-(35, 3, 'PHP Post 4', 'John Doe', '2022-10-17', 'image_1.jpg', '<p>This is the new shit.</p>', 'PHP, CMS', 0, 'draft', 1),
-(36, 2, 'JS 3', 'James Din', '2022-10-17', 'image_4.jpg', '<p>Some JavaScript but not Java scripts…</p>', 'JS, class', 0, 'published', 3),
-(42, 8, 'HTML Post 1', 'John', '2022-11-03', 'image_2.jpg', '<p>This is HTML post by John.</p>', 'html, bootstrap, john', 0, 'draft', 6),
-(43, 2, 'JS 3', 'James Din', '2022-11-04', 'image_4.jpg', '<p>Some JavaScript but not Java scripts…</p>', 'JS, class', 0, 'published', 0),
-(44, 3, 'PHP Post 4', 'John Doe', '2022-11-04', 'image_1.jpg', '<p>This is the new shit.</p>', 'PHP, CMS', 0, 'draft', 2),
-(45, 1, 'Lorem Ipsum', 'Qwerty', '2022-11-04', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 0, 'published', 0),
-(46, 2, 'JS 3', 'James Din', '2022-11-06', 'image_4.jpg', '<p>Some JavaScript but not Java scripts…</p>', 'JS, class', 0, 'published', 1),
-(48, 1, 'Lorem Ipsum', 'Qwerty', '2022-11-06', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 0, 'published', 0),
-(59, 2, 'Javascript post', 'Jane Doe', '2022-12-29', 'image_4.jpg', '<p>This is just another Javascript post.</p>', 'JS, javascript, jane', 0, 'published', 3),
-(60, 8, 'My Post', 'user86', '2023-01-13', '', '<p>This is my 1st post.</p>', 'html, bootstrap', 0, 'published', 4);
+INSERT INTO `posts` (`post_id`, `post_category_id`, `post_title`, `post_author`, `post_date`, `post_image`, `post_content`, `post_tags`, `post_comment_count`, `post_status`, `post_views_count`, `likes`) VALUES
+(1, 3, 'John\'s CMS PHP course is nice', 'John Doe', '2023-01-04', 'image_1.jpg', '<p>Wow I like this course</p>', 'john, cms, php', 1, 'draft', 71, 1),
+(2, 2, 'Javascript course Post', 'Belinda', '2022-12-28', 'image_4.jpg', '<p>Not Wow. This is not cool post. Belinda, don\\\'t call me.</p>', 'javascript, course, class, belinda', 3, 'published', 118, 2),
+(4, 4, 'Jane\'s Java course', 'Jane Doe', '2023-01-04', 'image_2.jpg', '<p>Updated Updated content 3.</p>', 'JS, PHP, class', 4, 'published', 51, 1),
+(7, 1, 'Lorem Ipsum', 'Qwerty', '2022-09-17', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 5, 'published', 160, 1),
+(8, 4, 'Test cat_title', 'James', '2022-10-16', 'image_5.jpg', 'Some content of Post.', 'asdf', 6, 'published', 43, 0),
+(13, 3, 'PHP Post 1', 'James Din', '2022-11-03', 'image_1.jpg', '<p>PHP Post. That is it.</p>', 'PHP, CMS', 2, 'draft', 19, 1),
+(14, 2, 'Lorem Ipsum', 'John', '2022-11-04', 'image_5.jpg', '<p><strong>Lorem Ipsum</strong> is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry_s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>', 'PHP, CMS, john', 0, 'published', 0, 0),
+(15, 4, 'This is another post', 'John', '2022-09-27', 'image_4.jpg', 'This is another post. One more post.', 'JS, class, john', 0, 'published', 0, 0),
+(16, 1, 'Lorem Ipsum2', 'James Din', '2022-09-28', 'image_3.jpg', 'Just test massage post.', 'JS, PHP, class', 0, 'published', 9, 0),
+(20, 3, 'PHP Post 2', 'Qwerty', '2022-11-03', 'image_1.jpg', '<p>This is some PHP Post.</p>', 'PHP, CMS, Qwerty', 0, 'published', 7, 0),
+(21, 3, 'PHP Post 3', 'Qwerty', '2022-10-04', 'image_1.jpg', '<p>Post text CMS <strong>PHP</strong> Smth….</p>', 'PHP, CMS', 0, 'draft', 13, 0),
+(24, 2, 'Add post test 2', 'John Doe', '2022-10-19', 'image_4.jpg', '<p>This is another <strong>Add post</strong> <i>test</i>.</p>', 'JS, PHP, class', 2, 'published', 5, 0),
+(32, 1, 'Java course', 'Jane Doe', '2022-10-13', 'image_2.jpg', 'Updated content 2', 'JS, PHP, class, jane', 0, 'published', 5, 0),
+(33, 1, 'Lorem Ipsum', 'Qwerty', '2022-10-13', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 0, 'published', 1, 0),
+(35, 3, 'PHP Post 4', 'John Doe', '2022-10-17', 'image_1.jpg', '<p>This is the new shit.</p>', 'PHP, CMS', 0, 'draft', 1, 0),
+(36, 2, 'JS 3', 'James Din', '2022-10-17', 'image_4.jpg', '<p>Some JavaScript but not Java scripts…</p>', 'JS, class', 0, 'published', 3, 0),
+(42, 8, 'HTML Post 1', 'John', '2022-11-03', 'image_2.jpg', '<p>This is HTML post by John.</p>', 'html, bootstrap, john', 0, 'draft', 6, 0),
+(43, 2, 'JS 3', 'James Din', '2022-11-04', 'image_4.jpg', '<p>Some JavaScript but not Java scripts…</p>', 'JS, class', 0, 'published', 0, 0),
+(44, 3, 'PHP Post 4', 'John Doe', '2022-11-04', 'image_1.jpg', '<p>This is the new shit.</p>', 'PHP, CMS', 0, 'draft', 2, 0),
+(45, 1, 'Lorem Ipsum', 'Qwerty', '2022-11-04', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 0, 'published', 0, 0),
+(46, 2, 'JS 3', 'James Din', '2022-11-06', 'image_4.jpg', '<p>Some JavaScript but not Java scripts…</p>', 'JS, class', 0, 'published', 1, 0),
+(48, 1, 'Lorem Ipsum', 'Qwerty', '2022-11-06', 'image_3.jpg', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'JS, PHP, class', 0, 'published', 0, 0),
+(59, 2, 'Javascript post', 'Jane Doe', '2022-12-29', 'image_4.jpg', '<p>This is just another Javascript post.</p>', 'JS, javascript, jane', 0, 'published', 3, 0),
+(60, 8, 'My Post', 'user86', '2023-01-13', '', '<p>This is my 1st post.</p>', 'html, bootstrap', 0, 'published', 4, 0);
 
 -- --------------------------------------------------------
 
@@ -152,7 +177,7 @@ CREATE TABLE `users` (
   `user_image` text NOT NULL,
   `user_role` varchar(255) NOT NULL,
   `token` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
@@ -187,7 +212,7 @@ CREATE TABLE `users_online` (
   `id` int(11) NOT NULL,
   `session` varchar(255) NOT NULL,
   `time` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users_online`
@@ -197,7 +222,8 @@ INSERT INTO `users_online` (`id`, `session`, `time`) VALUES
 (1, '3tc19hgb6jhhplmq86ueslgrks', 1673634108),
 (2, 'cerp2vnrnrmfeuoju35cglajo0', 1666275478),
 (3, 'h2i931c6p66bqmv2k6i5caj2f1', 1666182690),
-(4, '19kst44f4iig2l3hm0dfkfujro', 1673619850);
+(4, '19kst44f4iig2l3hm0dfkfujro', 1674041931),
+(5, 'a96oo9cpgag6aq7lhi06ovdr4c', 1674036638);
 
 --
 -- Indexes for dumped tables
@@ -214,6 +240,12 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`comment_id`);
+
+--
+-- Indexes for table `likes`
+--
+ALTER TABLE `likes`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `posts`
@@ -251,6 +283,12 @@ ALTER TABLE `comments`
   MODIFY `comment_id` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
+-- AUTO_INCREMENT for table `likes`
+--
+ALTER TABLE `likes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
 -- AUTO_INCREMENT for table `posts`
 --
 ALTER TABLE `posts`
@@ -266,7 +304,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `users_online`
 --
 ALTER TABLE `users_online`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

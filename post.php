@@ -5,6 +5,50 @@
    <!-- Navigation -->
 <?php include ("includes/navigation.php"); ?>
 
+<?php
+   // Linking post:
+   if(isset($_POST['liked'])) {
+      $user_id = $_POST['user_id'];
+      $post_id = $_POST['post_id'];
+
+      // Fetch right post:
+      $query = "SELECT * FROM posts WHERE post_id = $post_id";
+      $postResult = mysqli_query($connection, $query);
+      $post = mysqli_fetch_array($postResult);
+      $likes = $post['likes'];
+
+      // Update post - increment likes:
+      $query = "UPDATE posts SET likes = $likes + 1 WHERE post_id = $post_id";
+      mysqli_query($connection, $query);
+
+      // Create likes for post:
+      $query = "INSERT INTO likes (user_id, post_id) VALUES($user_id, $post_id)";
+      mysqli_query($connection, $query);
+      exit();
+   }
+
+   // Unliking post:
+   if(isset($_POST['unliked'])) {
+      $user_id = $_POST['user_id'];
+      $post_id = $_POST['post_id'];
+
+      // Fetching right post:
+      $query = "SELECT * FROM posts WHERE post_id = $post_id";
+      $postResult = mysqli_query($connection, $query);
+      $post = mysqli_fetch_array($postResult);
+      $likes = $post['likes'];
+
+      // Update post - decrement likes:
+      $query = "UPDATE posts SET likes = $likes - 1 WHERE post_id = $post_id";
+      mysqli_query($connection, $query);
+
+      // Delete likes:
+      $query = "DELETE FROM likes WHERE post_id = $post_id AND user_id = $user_id";
+      mysqli_query($connection, $query);
+      exit();
+   }
+?>
+
    <!-- Page Content -->
 <div class="container">
 
@@ -65,85 +109,108 @@
                      <hr>
                      <p><?php echo "$post_content"; ?></p>
                      <hr>
+                  
+                  <?php
+                     if(isLoggedIn()) { ?>
+                        <div class="row">
+                           <p class="pull-right"><a class="<?php echo userLikedPost($the_post_id) ? 'unlike' : 'like'; ?>" href="" 
+                           data-toggle="tooltip" data-placement="top" 
+                           title="<?php echo userLikedPost($the_post_id) ? 'I liked this before' : 'Want to like it?'; ?>">
+                           <span class="glyphicon glyphicon-thumbs-up"></span><?php echo userLikedPost($the_post_id) ? ' Unlike' : ' Like'; ?></a></p>
+                        </div>
+                        
+                     <?php 
+                     } else { ?>
+                        <div class="row">
+                           <p class="pull-right">You need to <a href="/!php/_cms_practice/login">login</a> to like</p>
+                        </div>
+                     <?php } ?>
+                  
+                     <div class="row">
+                        <p class="pull-right">Likes: <?php getPostLikes($the_post_id); ?></p>
+                     </div>
+                     <div class="clearfix"></div>
                   <?php
                   }
                   ?>
 
                <!-- Blog Comments -->
 
-                  <!-- Posted Comments -->
-                  <?php
-                     $query = "SELECT * FROM comments WHERE comment_post_id = {$the_post_id} ";
-                     $query .= "AND comment_status = 'approved' ";
-                     $query .= "ORDER BY comment_id DESC ";
-                     $select_comment_query = mysqli_query($connection, $query);
-                     confirmQuery($select_comment_query);
+               <!-- Posted Comments -->
+               <?php
+                  $query = "SELECT * FROM comments WHERE comment_post_id = {$the_post_id} ";
+                  $query .= "AND comment_status = 'approved' ";
+                  $query .= "ORDER BY comment_id DESC ";
+                  $select_comment_query = mysqli_query($connection, $query);
+                  confirmQuery($select_comment_query);
 
-                     echo "<h3>Comments:</h3>";
-                     
-                     while($row = mysqli_fetch_assoc($select_comment_query)) {
-                        $comment_author = $row['comment_author'];
-                        $comment_content = $row['comment_content'];
-                        $comment_date = $row['comment_date'];
-                        $comment_edit_author = $row['comment_edit_author'];
-                        $comment_editors_comment = $row['comment_editors_comment'];
-                        $comment_edited_date = $row['comment_edited_date'];
+                  echo "<h3>Comments:</h3>";
+                  
+                  while($row = mysqli_fetch_assoc($select_comment_query)) {
+                     $comment_author = $row['comment_author'];
+                     $comment_content = $row['comment_content'];
+                     $comment_date = $row['comment_date'];
+                     $comment_edit_author = $row['comment_edit_author'];
+                     $comment_editors_comment = $row['comment_editors_comment'];
+                     $comment_edited_date = $row['comment_edited_date'];
 
-                     ?>
-                        <!-- Comment -->
-                        <div class="media">
-                           <a class="pull-left" href="#">
-                              <img class="media-object" src="http://placehold.it/64x64" alt="">
-                           </a>
-                           <div class="media-body">
-                              <h4 class="media-heading"><?php echo $comment_author; ?>
-                                 <small><?php echo $comment_date; ?></small>
-                              </h4>
-                              <p><?php echo $comment_content; ?></p>
-                           </div>
-
-                           <?php
-                           if($comment_edit_author) {
-                              echo "<div class='comment_edit'>";
-                              echo "<h4 class='text-muted '><small>Edited by</small> $comment_edit_author ";
-                              echo "<small>$comment_edited_date</small>";
-                              echo "</h4>";
-                              echo "<p class='text-muted'>$comment_editors_comment</p>";
-                              echo "</div>";
-                           }
-                           ?>
-
+                  ?>
+                     <!-- Comment -->
+                     <div class="media">
+                        <a class="pull-left" href="#">
+                           <img class="media-object" src="http://placehold.it/64x64" alt="">
+                        </a>
+                        <div class="media-body">
+                           <h4 class="media-heading"><?php echo $comment_author; ?>
+                              <small><?php echo $comment_date; ?></small>
+                           </h4>
+                           <p><?php echo $comment_content; ?></p>
                         </div>
-                        <hr>
 
-                     <?php
-                     }
-
-                     // Adding comments Functionality:
-                     if(isset($_POST['create_comment'])) {
-                        $the_post_id = escape($_GET['p_id']);
-         
-                        $comment_author = escape($_POST['comment_author']);
-                        $comment_email = escape($_POST['comment_email']);
-                        $comment_content = escape($_POST['comment_content']);
-
-                        // Verification if all 3 fields are filled before the query send to DB:
-                        if(!empty($comment_author) && !empty($comment_email) && !empty($comment_content)) {
-                           $query = "INSERT INTO comments(comment_post_id, comment_author, comment_email, comment_content, comment_status, comment_date) ";
-                           $query .= "VALUES ('{$the_post_id}', '{$comment_author}', '{$comment_email}', '{$comment_content}', 'unapproved', now())";
-                           $create_comment_query = mysqli_query($connection, $query);
-                           if(!$create_comment_query) {
-                              exit('QUERY FAILED' . mysqli_error($connection));
-                           }         
-                           echo "<p class='bg-success'>Comment to <b>$post_title</b> Added." . " " . "<a href='/!php/_cms_practice/post/{$the_post_id}'>Return to Post</a></p>";
-                        } else {
-                           // echo "<p class='bg-warning'>At least one of the fields is empty.</p>";
-                           echo "<script>alert('Fields cannot be empty.')</script>";
+                        <?php
+                        if($comment_edit_author) {
+                           echo "<div class='comment_edit'>";
+                           echo "<h4 class='text-muted '><small>Edited by</small> $comment_edit_author ";
+                           echo "<small>$comment_edited_date</small>";
+                           echo "</h4>";
+                           echo "<p class='text-muted'>$comment_editors_comment</p>";
+                           echo "</div>";
                         }
+                        ?>
+
+                     </div>
+                     <hr>
+
+                  <?php
+                  }
+
+                  // Adding comments Functionality:
+                  if(isset($_POST['create_comment'])) {
+                     $the_post_id = escape($_GET['p_id']);
+      
+                     $comment_author = escape($_POST['comment_author']);
+                     $comment_email = escape($_POST['comment_email']);
+                     $comment_content = escape($_POST['comment_content']);
+
+                     // Verification if all 3 fields are filled before the query send to DB:
+                     if(!empty($comment_author) && !empty($comment_email) && !empty($comment_content)) {
+                        $query = "INSERT INTO comments(comment_post_id, comment_author, comment_email, comment_content, comment_status, comment_date) ";
+                        $query .= "VALUES ('{$the_post_id}', '{$comment_author}', '{$comment_email}', '{$comment_content}', 'unapproved', now())";
+                        $create_comment_query = mysqli_query($connection, $query);
+                        if(!$create_comment_query) {
+                           exit('QUERY FAILED' . mysqli_error($connection));
+                        }         
+                        echo "<p class='bg-success'>Comment to <b>$post_title</b> Added." . " " . "<a href='/!php/_cms_practice/post/{$the_post_id}'>Return to Post</a></p>";
+                     } else {
+                        // echo "<p class='bg-warning'>At least one of the fields is empty.</p>";
+                        echo "<script>alert('Fields cannot be empty.')</script>";
                      }
+                  }
                   ?>
             
-                     <!-- Adding comments Form -->
+                  <!-- Adding comments Form -->
+                  <?php
+                  if(isLoggedIn()) { ?>
                      <div class="well">
                         <h4>Leave a Comment:</h4>
                         <form action="" method="post" role="form">
@@ -164,10 +231,12 @@
                         </form>
                      </div>
                      <hr>
-
-               <?php
-               } else {
-                  echo "<h1 class='text-center'>No posts available</h1>";
+                  <?php 
+                  } else { ?>
+                     <div class="row">
+                        <p style="margin-left: 15px; font-size: 2rem;">You need to <a href="/!php/_cms_practice/login">login</a> to comment</p>
+                     </div>
+                  <?php }
                }
                mysqli_stmt_close($stmt);
                
@@ -188,3 +257,39 @@
 
    <!-- Footer -->
 <?php include ("includes/footer.php"); ?>
+
+<script>
+   $(document).ready(function(){
+      // Show tooltip over the 'Like/Unlike':
+      $("[data-toggle='tooltip']").tooltip();
+
+      var post_id = <?php echo $the_post_id; ?>;
+      var user_id = <?php echo loggedInUserId(); ?>;
+
+      // Liking:
+      $('.like').click(function(){
+         $.ajax({
+            url: "/!php/_cms_practice/post.php?p_id=<?php echo $the_post_id; ?>",
+            type: 'post',
+            data: {
+               'liked': 1,
+               'post_id': post_id,
+               'user_id': user_id
+            }
+         });
+      });
+
+      // Unliking:
+      $('.unlike').click(function(){
+         $.ajax({
+            url: "/!php/_cms_practice/post.php?p_id=<?php echo $the_post_id; ?>",
+            type: 'post',
+            data: {
+               'unliked': 1,
+               'post_id': post_id,
+               'user_id': user_id
+            }
+         });
+      });
+   });
+</script>

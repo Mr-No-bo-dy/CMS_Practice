@@ -25,7 +25,7 @@
 
       if (isset($_POST['newPassword']) && isset($_POST['confirmPassword'])) {
          if ($_POST['newPassword'] === $_POST['confirmPassword']) {
-            $newPassword = $_POST['newPassword'];
+            $newPassword = escape($_POST['newPassword']);
             $hashed_password = password_hash($newPassword, PASSWORD_BCRYPT, array('cost' => 12));
 
             if ($stmt = mysqli_prepare($connection, "UPDATE users SET token = '', user_password = '{$hashed_password}' WHERE user_email = ?")) {
