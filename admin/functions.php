@@ -1,9 +1,5 @@
 <?php
-   function query($query) {
-      global $connection;
-      return mysqli_query($connection, $query);
-   }
-
+// DATABASE HELPERS:
    function confirmQuery($result) {
       global $connection;
       if(!$result) {
@@ -11,6 +7,16 @@
       }
    }
 
+   function query($query) {
+      global $connection;
+      $result = mysqli_query($connection, $query);
+      confirmQuery($result);
+      return $result;
+   }
+
+   function fetchRecord($result) {
+      return mysqli_fetch_array($result);
+   }
 
    // Security function to escape strings in various places of code:
    function escape($string) {
@@ -19,39 +25,52 @@
    }
 
 
-   // Helper Functions (for reset_pass):
-      function redirect($location) {
-         header("Location:" . $location);
-         exit;
-      }
+// HELPER FUNCTIONS (for reset_pass):
+   function redirect($location) {
+      header("Location:" . $location);
+      exit;
+   }
 
-      function ifItIsMethod($method=null) {
-         if ($_SERVER['REQUEST_METHOD'] == strtoupper($method)) {
+   function ifItIsMethod($method=null) {
+      if ($_SERVER['REQUEST_METHOD'] == strtoupper($method)) {
+         return true;
+      }
+      return false;
+   }
+
+// AUTHENTICATION FUNCTIONS:
+   function isLoggedIn() {
+      if (isset($_SESSION['user_role'])) {
+         return true;
+      }
+      return false;
+   }
+
+   function checkIfUserIsLoggedInAndRedirect($redirectLocation=null) {
+      if (ifItIsMethod()) {
+         redirect($redirectLocation);
+      }
+   }
+
+   // Security function to NOT allow subscribers/guests into "some page":
+   function isAdmin() {
+      if (isLoggedIn()) {
+         $result = query("SELECT user_role FROM users WHERE user_id = ". $_SESSION['user_id'] ." ");
+         $row = fetchRecord($result);
+         if($row['user_role'] == 'admin') {
             return true;
-         }
-         return false;
-      }
-
-      function isLoggedIn() {
-         if (isset($_SESSION['user_role'])) {
-            return true;
-         }
-         return false;
-      }
-
-      function checkIfUserIsLoggedInAndRedirect($redirectLocation=null) {
-         if (ifItIsMethod()) {
-            redirect($redirectLocation);
+         } else {
+            return false;
          }
       }
-
+      return false;
+   }
 
    // Geting logged in user_id:
    function loggedInUserId() {
       if(isLoggedIn()) {
-         $result = query("SELECT * FROM users WHERE user_name ='" . $_SESSION['user_name'] . "'");
-         confirmQuery($result);
-         $user = mysqli_fetch_array($result);
+         $result = query("SELECT * FROM users WHERE user_id ='" . $_SESSION['user_id'] . "'");
+         $user = fetchRecord($result);
          if(mysqli_num_rows($result) >= 1) {
             return $user['user_id'];
          }
@@ -59,10 +78,16 @@
       return false;
    }
 
+   function getUserName() {
+      if(isset($_SESSION['user_name'])) {
+         return $_SESSION['user_name'];
+      }
+   }
+
+// GENERAL FUNCTIONS:
    // Checking if current user Liked this post:
    function userLikedPost($post_id) {
       $result = query("SELECT * FROM likes WHERE user_id =" . loggedInUserId() . " AND post_id = {$post_id}");
-      confirmQuery($result);
       if(mysqli_num_rows($result) >= 1) {
          return true;
       } else {
@@ -70,29 +95,11 @@
       }
    }
 
-
    // Geting number of Likes for current post:
    function getPostLikes($post_id) {
       $result = query("SELECT * FROM likes WHERE post_id = $post_id");
-      confirmQuery($result);
       echo mysqli_num_rows($result);
    }
-
-
-    // Security function to NOT allow subscribers into "some page":
-   function isAdmin($name) {
-      global $connection;
-      $query = "SELECT user_role FROM users WHERE user_name = '{$name}'";
-      $result = mysqli_query($connection, $query);
-      confirmQuery($result);
-      $row = mysqli_fetch_array($result);
-      if($row['user_role'] == 'admin') {
-         return true;
-      } else {
-         return false;
-      }
-   }
-
 
    // to Show default image when none are in post:
    function imagePlaceholder($image = null) {
@@ -102,7 +109,6 @@
          return $image;
       }
    }
-   
 
    // Verification-Function to NOT allow registration user with same 'user_name':
    function user_name_Exist($name) {
@@ -327,11 +333,23 @@
    <?php
    }
 
-   
+
+// DATA COUNT FUNCTIONS:
    // Function to count different stats for Admin's dashboard:
    function recordCount($table) {
       global $connection;
       $query = "SELECT * FROM " . $table;
+      $select_all_smth = mysqli_query($connection, $query);
+      $result = mysqli_num_rows($select_all_smth);
+      confirmQuery($result);
+      return $result;
+   }
+   
+   // Function to count different stats for User's dashboard:
+   function recordCountByUser($table) {
+      global $connection;
+      $user_id = $_SESSION['user_id'];
+      $query = "SELECT * FROM " . $table . " WHERE user_id = $user_id";
       $select_all_smth = mysqli_query($connection, $query);
       $result = mysqli_num_rows($select_all_smth);
       confirmQuery($result);
@@ -347,8 +365,55 @@
       confirmQuery($resultPartial);
       return $resultPartial;
    }
-   
 
+   // // Function to count different partial stats for User's dashboard:
+   // function recordCountPartialByUser($table, $column, $value) {
+   //    global $connection;
+   //    $user_id = $_SESSION['user_id'];
+   //    $query = "SELECT * FROM " . $table . " WHERE " . $column . "= '" . $value . "' AND user_id = $user_id";
+   //    $select_partial_smth = mysqli_query($connection, $query);
+   //    $resultPartial = mysqli_num_rows($select_partial_smth);
+   //    confirmQuery($resultPartial);
+   //    return $resultPartial;
+   // }
+   
+// Functions to count personal data:
+   function countRecords($result) {
+      return mysqli_num_rows($result);
+   }
+   
+   function getUserPosts() {
+      return query("SELECT * FROM posts WHERE user_id = ".loggedInUserId()." ");
+   }
+   function getUserPublishedPosts() {
+      return query("SELECT * FROM posts WHERE user_id = ".loggedInUserId()." AND post_status = 'published'");
+   }
+   function getUserDraftPosts() {
+      return query("SELECT * FROM posts WHERE user_id = ".loggedInUserId()." AND post_status = 'draft'");
+   }
+
+   function getUserComments() {
+      return query("SELECT * FROM posts INNER JOIN comments 
+      ON posts.post_id = comments.comment_post_id 
+      WHERE user_id = ".loggedInUserId()." ");
+   }
+   function getUserApprovedComments() {
+      return query("SELECT * FROM posts INNER JOIN comments 
+      ON posts.post_id = comments.comment_post_id 
+      WHERE user_id = ".loggedInUserId()." AND comment_status = 'approved'");
+   }
+   function getUserUnapproverComments() {
+      return query("SELECT * FROM posts INNER JOIN comments 
+      ON posts.post_id = comments.comment_post_id 
+      WHERE user_id = ".loggedInUserId()." AND comment_status = 'unapproved'");
+   }
+
+   function getUserCategories() {
+      return query("SELECT * FROM categories WHERE user_id = ".loggedInUserId()." ");
+   }
+
+
+// OTHER FUNCTIONS:
    // Changing Comments in Admin - Comments:
    function changeComment($request, $value) {
       global $connection;

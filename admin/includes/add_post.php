@@ -1,6 +1,7 @@
 <?php
    if(isset($_POST['create_post'])) {
       $post_category_id = escape($_POST['post_category']);
+      $user_id = loggedInUserId();
       $post_title = escape($_POST['post_title']);
       $post_author = escape($_POST['post_author']);
 
@@ -22,8 +23,8 @@
       // confirmQuery($create_post_query);
 
       // ADD POST via mysqli_stmt:
-      $stmt = mysqli_prepare($connection, "INSERT INTO posts(post_category_id, post_title, post_author, post_date, post_image, post_content, post_tags, post_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-      mysqli_stmt_bind_param($stmt, "isssssss", $post_category_id, $post_title, $post_author, $post_date, $post_image, $post_content, $post_tags, $post_status);
+      $stmt = mysqli_prepare($connection, "INSERT INTO posts(post_category_id, user_id, post_title, post_author, post_date, post_image, post_content, post_tags, post_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+      mysqli_stmt_bind_param($stmt, "iisssssss", $post_category_id, $user_id, $post_title, $post_author, $post_date, $post_image, $post_content, $post_tags, $post_status);
       mysqli_stmt_execute($stmt);
       confirmQuery($stmt);
       mysqli_stmt_close($stmt);

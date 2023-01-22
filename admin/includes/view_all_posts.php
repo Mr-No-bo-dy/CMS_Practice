@@ -23,6 +23,7 @@
 
                while($row = mysqli_fetch_array($select_post_query)) {
                   $post_category_id = escape($row['post_category_id']);
+                  $user_id = escape($row['user_id']);
                   $post_title = escape($row['post_title']);
                   $post_author = escape($row['post_author']);
                   $post_image = escape($row['post_image']);
@@ -37,8 +38,8 @@
                   // }
                }
 
-               $query = "INSERT INTO posts(post_category_id, post_title, post_author, post_date, post_image, post_content, post_tags, post_status) ";
-               $query .= "VALUES('{$post_category_id}', '{$post_title}', '{$post_author}', now(), '{$post_image}', '{$post_content}', '{$post_tags}', '{$post_status}')";
+               $query = "INSERT INTO posts(post_category_id, user_id, post_title, post_author, post_date, post_image, post_content, post_tags, post_status) ";
+               $query .= "VALUES('{$post_category_id}', '{$user_id}', '{$post_title}', '{$post_author}', now(), '{$post_image}', '{$post_content}', '{$post_tags}', '{$post_status}')";
                $post_clone_query = mysqli_query($connection, $query);
                confirmQuery($post_clone_query);
                break;
@@ -85,9 +86,9 @@
             <th>Image</th>
             <th>Tags</th>
             <th>Content</th>
+            <th>Date</th>
             <th>Comments</th>
             <th>Views</th>
-            <th>Date</th>
             <th>Publish</th>
             <th>Unpublish</th>
             <th>Edit</th>
@@ -100,7 +101,7 @@
             
             // $query = "SELECT * FROM posts ORDER BY post_id DESC";  // Commented After Joining 2 tables in DataBase
             // Temporary Joining 2 tables in DataBase (Для того, щоб сторінка швидше працювала):
-            $query = "SELECT posts.post_id, posts.post_author, posts.post_title, posts.post_category_id, posts.post_status, posts.post_image, posts.post_tags, ";
+            $query = "SELECT posts.post_id, posts.user_id, posts.post_author, posts.post_title, posts.post_category_id, posts.post_status, posts.post_image, posts.post_tags, ";
             $query .= "posts.post_content, posts.post_comment_count, posts.post_views_count, posts.post_date, categories.cat_id, categories.cat_title ";
             $query .= "FROM posts ";
             $query .= "LEFT JOIN categories ON posts.post_category_id = categories.cat_id ORDER BY post_id DESC";
@@ -109,6 +110,7 @@
             $select_posts = mysqli_query($connection, $query);
             while ($row = mysqli_fetch_assoc($select_posts)) {
                $post_id = $row['post_id'];
+               $user_id = $row['user_id'];
                $post_author = $row['post_author'];
                $post_title = $row['post_title'];
                $post_category_id = $row['post_category_id'];
@@ -116,9 +118,9 @@
                $post_image = $row['post_image'];
                $post_tags = $row['post_tags'];
                $post_content = substr($row['post_content'], 0, 50);
+               $post_date = $row['post_date'];
                $post_comment_count = $row['post_comment_count'];
                $post_views_count = $row["post_views_count"];
-               $post_date = $row['post_date'];
                $category_id = $row["cat_id"];        // After Joining 2 tables in DataBase
                $category_title = $row["cat_title"];  // After Joining 2 tables in DataBase
 
@@ -127,7 +129,7 @@
                   <td><input class='checkBoxes' type='checkbox' name='checkBoxArray[]' value='<?php echo "$post_id"; ?>'></td>
                <?php
                echo "<td>{$post_id}</td>";
-               echo "<td>{$post_author}</td>";
+               echo "<td><a href='users.php?source=edit_user&edit_user={$user_id}'>{$post_author}</a></td>";
                echo "<td><a href='../post.php?p_id={$post_id}'>{$post_title}</a></td>";
 
                // Commented After Joining 2 tables in DataBase:
@@ -145,6 +147,7 @@
                echo "<td><img width='100' src='../images/{$post_image}'></td>";
                echo "<td>{$post_tags}</td>";
                echo "<td>{$post_content}</td>";
+               echo "<td>{$post_date}</td>";
 
                // NEW Comments_count system:
                // Не знаю, чи треба тут "ескейпити" $_GET['post_id'], а якщо треба - не знаю, як це зробити, щоб не втратити даний функціонал, і без помилок:
@@ -154,7 +157,6 @@
                echo "<td><a class='btn btn-info' href='post_comments.php?id={$post_id}'>{$count_comments}</a></td>";
 
                echo "<td><a class='btn btn-warning' onClick=\"javascript: return confirm('Are you sure you want to reset $post_title views count?'); \" href='posts.php?reset={$post_id}'>{$post_views_count}</a></td>";
-               echo "<td>{$post_date}</td>";
                echo "<td><a class='btn btn-success' href='posts.php?publish={$post_id}'>Publish</a></td>";
                echo "<td><a class='btn btn-primary' href='posts.php?unpublish={$post_id}'>Unpublish</a></td>";
                echo "<td><a class='btn btn-warning' href='posts.php?source=edit_post&p_id={$post_id}'>Edit</a></td>";
